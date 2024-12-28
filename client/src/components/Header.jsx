@@ -40,7 +40,7 @@ export default function Header() {
   }
 
   return (
-    <header className='relative py-4 md:py-6 bg-[#FBF6E2] shadow-lg dark:bg-gray-900 dark:text-yellow-50 duration-200 z-50'>
+    <header className='relative p-4 md:p-6 bg-[#FBF6E2] shadow-lg dark:bg-gray-900 dark:text-yellow-50 duration-200 z-50'>
       <div className='relative container mx-auto md:flex-row flex items-center justify-between'>
         <div className='hidden md:flex flex-col md:flex-row items-center space-x-4 '>
           {leftLinks.map((link) => (
@@ -71,15 +71,15 @@ export default function Header() {
         </div>
         
       <Link to={"/"} className="flex gap-2 items-center justify-center md:ml-0">
-          <MdPanoramaPhotosphere  className="text-primary text-xl md:text-2xl" />
-          <h1 className="text-primary font-bold text-xl md:text-2xl font-serif md:mr-0">
+          <MdPanoramaPhotosphere  className="text-primary text-3xl md:text-2xl" />
+          <h1 className="text-primary font-bold text-xl md:text-2xl font-serif md:mr-0 hidden md:flex">
            OFFERINGSBYMK
           </h1>
         </Link>
 
-        <div className=" hidden md:flex items-center space-x-4">
-        <div className='w-10 h-10 bg-yellow-200 rounded-full flex justify-center items-center relative cursor-pointer' onClick={handleOpenCartTab}>
-        <BsCart4 className='w-6 text-primary text-2xl' />
+        <div className=" hidden md:flex items-center space-x-2  md:mr-10 lg:mr-10 xl:mr-1">
+        <div className='p-2 bg-yellow-200 rounded-full flex justify-center items-center relative cursor-pointer ' onClick={handleOpenCartTab}>
+        <BsCart4 className=' text-primary text-2xl' />
         <span className='absolute top-8 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center'>{totalQuantity}</span>
         </div>
           {rightLinks.map((link) => (
@@ -92,12 +92,12 @@ export default function Header() {
           ))}
         </div>
         {/* darkmode Switch */}
-        <div className='w-10 h-10 bg-yellow-200 rounded-full flex justify-center items-center relative cursor-pointer md:hidden' onClick={handleOpenCartTab}>
-        <BsCart4 className='w-6 text-primary text-2xl' />
+        <div className='p-2 ml-32 bg-yellow-200 rounded-full flex justify-center items-center relative cursor-pointer md:hidden' onClick={handleOpenCartTab}>
+        <BsCart4 className=' text-primary text-2xl' />
         <span className='absolute top-8 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center'>{totalQuantity}</span>
         </div>
         <div
-        className='w-8 h-8 cursor-pointer flex md:hidden justify-center items-center border border-yell bg-yellow-200 text-primary text-xl rounded-md'
+        className='p-2  cursor-pointer flex md:hidden justify-center items-center border border-yell bg-yellow-200 text-primary text-xl rounded-md'
         onClick={toggleMenu}>
         <RiMenu4Line />
         </div>

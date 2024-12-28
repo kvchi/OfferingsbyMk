@@ -41,13 +41,13 @@ export default function Home() {
     <main>
       <section className="container mx-auto relative overflow-hidden bg-gray-100 dark:bg-gray-800 max-w-screen">
         <div className="absolute h-[600px] w-[600px] bg-primary rotate-45 rounded-3xl -top-full right-0 -z-9"></div>
-        <aside className="flex md:flex-row-reverse flex-col mb-4 mt-2 md:mt-0 items-center justify-center">
+        <aside className=" flex md:flex-row-reverse flex-col mb-4 mt-2 md:mt-0 items-center justify-center p-8">
           <Swiper key={23}
             {...swiperParams}
             data-aos="zoom-out"
             data-aos-once="true"
             data-aos-duration="600"
-            className="h-[400px] w-[600px] object-cover mt-20 rounded-2xl"
+            className="h-[400px] w-[400px] object-cover mt-20 rounded-2xl"
           >
             {headerBackground.map((item) => (
               <SwiperSlide key={item.id} className="relative">
@@ -114,7 +114,7 @@ export default function Home() {
         {/*Banner Section*/}
       <section className="container mx-auto py-10 dark:bg-slate-600">
         <aside className="min-h-[550px] flex md:flex-row flex-col justify-center items-center gap-20">
-          <div className=" gap-6 items-center">
+          <div className=" gap-6 items-center px-4">
             <div data-aos="zoom-in">
             <img 
             src={incense} 
@@ -122,12 +122,12 @@ export default function Home() {
             className="max-w-[400px] h-[350px] w-full mx-auto drop-shadow-[-10px_10px_12px_rgba(0,0,0,1)] object-cover"/>
             </div>
           </div>
-          <div className="flex flex-col justify-center gap-6 ">
-            <h1 className="text-3xl font-bold dark:text-primary text-slate-600">Summer Sale upto 50% off</h1>
+          <div className="flex flex-col justify-center gap-6 px-4 md:px-0">
+            <h1 className="text-2xl md:text-3xl font-bold dark:text-primary text-slate-600">Summer Sale upto 50% off</h1>
             <p className="text-sm text-gray-600 tracking-wide leading-5 max-w-md dark:text-primary">
               Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sequi eos quasi illo harum reiciendis eaque a, ea, repudiandae, excepturi nesciunt facilis pariatur eveniet! 
             </p>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 ">
               <div
               data-aos='fade-up'
               className="flex items-center gap-4"
@@ -161,17 +161,17 @@ export default function Home() {
         </aside>
       </section>
       {/*Subscribe Section*/}
-      <section className="container mx-auto py-0 dark:bg-slate-400 relative">
+      <section className="container px-5 lg:mx-auto py-0 dark:bg-slate-400 relative">
               <div data-aos='zoom-in'>
               <img src={scentedCandles} alt="candles" className="absolute left-0 top-0 w-full h-full object-cover" />
               <div className="container backdrop-blur-sm py-10">
-                <div className="space-y-6 max-w-xl mx-auto">
+                <div className="space-y-6 max-w-xl mx-auto px-4 md:px-0">
                 <h1 
                 className="text-2xl text-center text-slate-900 font-semibold dark:text-primary">Get Notified About New Products</h1>
                 <input data-aos='fade-up'
                 type="text"
                 placeholder="Enter your email"
-                className="w-full text-center p-3 rounded-md"/>
+                className="w-full text-center p-3 rounded-md "/>
                 </div>
               </div>
               </div>
@@ -202,8 +202,10 @@ export default function Home() {
             spaceBetween={20}
             slidesPerView={2}
             breakpoints={{
+              300: { slidesPerView: 1, spaceBetween: 10 },
               400: { slidesPerView: 2, spaceBetween: 10 },
-              800: { slidesPerView: 3, spaceBetween: 20 },
+              800: { slidesPerView: 2, spaceBetween: 20 },
+              1000: { slidesPerView: 3, spaceBetween: 20 },
             }}
           >
             {testimonials.map((item) => (

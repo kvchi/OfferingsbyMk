@@ -20,7 +20,7 @@ export default function DarkMode() {
     }, [theme, element]);
             
   return (
-    <div className='relative mr-20 flex items-center -top-3 '>
+    <div className='relative mr-14 md:mr-0 lg:mr-0 flex items-center -top-5 '>
          {theme === "light" ? (
                 <MdOutlineLightMode
                     onClick={() => setTheme("dark")}

@@ -29,6 +29,10 @@ export default function Header() {
     setShowMenu(!showMenu); // Toggle menu visibility
   };
 
+  const closeMenu = () => {
+    setShowMenu(false); // Close the menu
+  };
+
   // Toggle DropDown
   const toggleCategoryDropdown = (e) => {
     e.preventDefault();
@@ -77,7 +81,7 @@ export default function Header() {
           </h1>
         </Link>
 
-        <div className=" hidden md:flex items-center space-x-2  md:mr-10 lg:mr-10 xl:mr-1">
+        <div className=" hidden md:flex items-center space-x-2  md:mr-10 lg:mr-10 xl:mr-5">
         <div className='p-2 bg-yellow-200 rounded-full flex justify-center items-center relative cursor-pointer ' onClick={handleOpenCartTab}>
         <BsCart4 className=' text-primary text-2xl' />
         <span className='absolute top-8 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center'>{totalQuantity}</span>
@@ -103,14 +107,20 @@ export default function Header() {
         </div>
       </div>
       
-          <div className={`md:hidden flex flex-col absolute top-full z-50 bg-secondary dark:bg-gray-800 w-screen py-2 px-4 transition-transform duration-300 ease-out ${showMenu ? 'menu-enter-active' : 'menu-enter'}`}>
+          <div className={`md:hidden flex flex-col absolute top-full z-50 bg-secondary dark:bg-gray-800 w-screen py-2 px-4 transition-transform duration-700 ease-out ${showMenu ? 'menu-enter-active' : 'menu-enter'}`}>
           
             {headerData.map((link) => (
               <div key={link.id}   className='relative dark:hover:bg-gray-900 p-2 hover:bg-white rounded-md'>
               <Link
-                to={link.url}
-                onClick={link.title === 'Category' ? toggleCategoryDropdown : null}
-                className={`text-primary font-normal text-xl`}
+                 to={link.url}
+                 onClick={() => {
+                   if (link.title === 'Category') {
+                     toggleCategoryDropdown();
+                   } else {
+                     closeMenu(); // Close the menu when an item is clicked
+                   }
+                 }}
+                 className={`text-primary font-normal text-xl`}
               >
                 {link.title}
               </Link>

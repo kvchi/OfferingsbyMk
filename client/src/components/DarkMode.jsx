@@ -2,8 +2,8 @@ import React, {useState, useEffect} from 'react'
 import { MdLightMode, MdOutlineLightMode } from 'react-icons/md'
 
 export default function DarkMode() {
-    const [theme, setTheme] = useState(
-        localStorage.getItem("them")?localStorage.getItem("theme"):"light"
+    const [theme, setTheme] = useState(() =>
+        localStorage.getItem("theme") === "dark" ? "dark" : "light"
     )
     const element = document.documentElement;
     
@@ -13,7 +13,6 @@ export default function DarkMode() {
             element.classList.remove("light");
             localStorage.setItem("theme", "dark");
         } else {
-            element.classList.add("dark");
             element.classList.remove("dark");
             localStorage.setItem("theme", "light");  
         }

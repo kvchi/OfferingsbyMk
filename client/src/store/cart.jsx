@@ -1,7 +1,35 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { productsById } from "../data/productCatalog";
+
+const readStoredCart = () => {
+    try {
+        const storedCart = JSON.parse(localStorage.getItem("carts") || "[]");
+
+        if (!Array.isArray(storedCart)) {
+            throw new Error("Stored cart is not an array");
+        }
+
+        const validItems = storedCart.filter((item) =>
+            item &&
+            typeof item.productId === "string" &&
+            productsById.has(item.productId) &&
+            Number.isInteger(item.quantity) &&
+            item.quantity > 0
+        );
+
+        if (validItems.length !== storedCart.length) {
+            localStorage.setItem("carts", JSON.stringify(validItems));
+        }
+
+        return validItems;
+    } catch {
+        localStorage.removeItem("carts");
+        return [];
+    }
+};
 
 const initialState = {
-    items: localStorage.getItem("carts") ? JSON.parse(localStorage.getItem("carts")) : [],
+    items: readStoredCart(),
     statusTab: false
 }
 
@@ -42,4 +70,3 @@ const initialState = {
     })
     export const {addToCart, changeQuantity, toggleStatusTab} = cartSlice.actions;
     export default cartSlice.reducer;
-    

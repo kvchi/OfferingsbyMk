@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { MdPanoramaPhotosphere } from 'react-icons/md'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { headerData } from '../data/headerData'
 import { RiMenu4Line } from 'react-icons/ri';
 import DarkMode from './DarkMode';
 import { BsCart4 } from 'react-icons/bs';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleStatusTab } from '../store/cart';
+import { logout } from '../store/auth';
+import toast from 'react-hot-toast';
 
 export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
@@ -15,7 +17,9 @@ export default function Header() {
   const rightLinks = headerData.slice(3);
   const [totalQuantity, setTotalQuantity] = useState(0);
   const carts = useSelector(store => store.cart.items);
+  const isAuthenticated = useSelector(store => store.auth.isAuthenticated);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   
   //Use useeffect to process
 
@@ -35,12 +39,50 @@ export default function Header() {
 
   // Toggle DropDown
   const toggleCategoryDropdown = (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     setShowDropdown(!showDropdown);
   }
 
   const handleOpenCartTab = () => {
     dispatch(toggleStatusTab());
+  }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    closeMenu();
+    navigate('/');
+    toast.success('Logged out successfully');
+  }
+
+  const linkClass = 'text-primary hover:text-slate-800 hover:translate-y-2 font-semibold';
+
+  const renderAuthLink = (link, className = linkClass) => {
+    if (link.title !== 'Login') {
+      return (
+        <Link key={link.id} to={link.url} className={className}>
+          {link.title}
+        </Link>
+      );
+    }
+
+    if (isAuthenticated) {
+      return (
+        <button
+          key={link.id}
+          type="button"
+          onClick={handleLogout}
+          className={className}
+        >
+          Logout
+        </button>
+      );
+    }
+
+    return (
+      <Link key={link.id} to={link.url} className={className}>
+        Login
+      </Link>
+    );
   }
 
   return (
@@ -60,6 +102,7 @@ export default function Header() {
                     <Link
                     key={subItem.id}
                     to={subItem.url}
+                    onClick={() => setShowDropdown(false)}
                     className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-primary dark:hover:bg-gray-600'>
                       {subItem.title}
                     </Link>
@@ -86,14 +129,7 @@ export default function Header() {
         <BsCart4 className=' text-primary text-2xl' />
         <span className='absolute top-8 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center'>{totalQuantity}</span>
         </div>
-          {rightLinks.map((link) => (
-            <Link 
-            key={link.id} 
-            to={link.url} 
-            className={`text-primary hover:text-slate-800 hover:translate-y-2 font-semibold `}>
-              {link.title}
-            </Link>
-          ))}
+          {rightLinks.map((link) => renderAuthLink(link))}
         </div>
         {/* darkmode Switch */}
         <div className='p-2 ml-32 bg-yellow-200 rounded-full flex justify-center items-center relative cursor-pointer md:hidden' onClick={handleOpenCartTab}>
@@ -111,25 +147,49 @@ export default function Header() {
           
             {headerData.map((link) => (
               <div key={link.id}   className='relative dark:hover:bg-gray-900 p-2 hover:bg-white rounded-md'>
+              {link.title === 'Login' ? (
+                isAuthenticated ? (
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="text-primary font-normal text-xl"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <Link
+                    to={link.url}
+                    onClick={closeMenu}
+                    className="text-primary font-normal text-xl"
+                  >
+                    Login
+                  </Link>
+                )
+              ) : (
               <Link
                  to={link.url}
                  onClick={() => {
                    if (link.title === 'Category') {
                      toggleCategoryDropdown();
                    } else {
-                     closeMenu(); // Close the menu when an item is clicked
+                     closeMenu();
                    }
                  }}
                  className={`text-primary font-normal text-xl`}
               >
                 {link.title}
               </Link>
+              )}
               {link.title === 'Category' && showDropdown && (
               <div className='absolute left-0 mt-4 w-48 bg-white shadow-lg rounded-md z-50 dark:bg-gray-700 '>
                 {link.subItems.map((subItem) => (
                   <Link
                     key={subItem.id}
                     to={subItem.url}
+                    onClick={() => {
+                      setShowDropdown(false);
+                      closeMenu();
+                    }}
                     className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-primary dark:hover:bg-gray-900'
                   >
                     {subItem.title}

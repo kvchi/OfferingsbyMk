@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useLocation } from 'react-router-dom';
 import { shopData } from "../data/shopData";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -13,6 +14,16 @@ import Wellness from '../components/Wellness';
 
 
 export default function Shop() {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) return;
+
+    requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, [hash]);
+
   const swiperParams = {
     modules: [Autoplay],
     autoplay: { delay: 4000 },
@@ -47,31 +58,31 @@ export default function Shop() {
           </div>
              <ShopItems /> 
         </section>
-        <section className='py-8'>
+        <section id='candles' className='py-8 scroll-mt-8'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Candles</h2>
           </div>
           <Candles />
         </section>
-        <section className='py-8'>
+        <section id='essential-oils' className='py-8 scroll-mt-8'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Essential Oils</h2>
           </div>
           <Oil />
         </section>
-        <section className='py-8'>
+        <section id='herbs-botanicals' className='py-8 scroll-mt-8'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Herbs & Botanicals</h2>
           </div>
           <Herbs />
         </section>
-        <section className='py-8'>
+        <section id='home-decor' className='py-8 scroll-mt-8'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Home Decorations</h2>
           </div>
           <HomeDecor />
         </section>
-        <section className='py-8'>
+        <section id='wellness-relaxation' className='py-8 scroll-mt-8'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Wellness & Relaxation</h2>
           </div>

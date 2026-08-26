@@ -1,17 +1,12 @@
-import React, {useState, useEffect} from 'react'
-import { productData} from '../data/productData';
+import React from 'react'
+import { productsById } from '../data/productCatalog';
 import { useDispatch } from 'react-redux';
 import { changeQuantity } from '../store/cart';
 
 export default function CartItems(props) {
     const {productId, quantity} = props.data;
-    const [detail, setDetail] = useState(null);
+    const detail = productsById.get(productId);
     const dispatch = useDispatch();
-    useEffect(() => {
-            const findDetail = productData.filter(product => product.id === productId)[0];
-            setDetail(findDetail);
-        }, [productId])
-        console.log(detail)
 
         const handleMinusQuantity = () => {
           dispatch(changeQuantity({
@@ -27,7 +22,7 @@ export default function CartItems(props) {
         }
 
         if (!detail) {
-          return null; // or a loading spinner
+          return null;
       }
 
         // Convert the price to a number by stripping out non-numeric characters

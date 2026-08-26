@@ -14,11 +14,11 @@ export const headerData = [
         title: "Category",
         url: "#",
         subItems: [
-            { id: 1, title: 'Candles', url: '/category/candles' },
-            { id: 2, title: 'Essential Oils', url: '/category/essential-oils' },
-            { id: 3, title: 'Herbs & Botanicals', url: '/category/herbs-botanicals' },
-            { id: 4, title: 'Home Decor', url: '/category/home-decor' },
-            { id: 5, title: 'Wellness & Relaxation', url: '/category/wellness-relaxation' },
+            { id: 1, title: 'Candles', url: '/shop#candles' },
+            { id: 2, title: 'Essential Oils', url: '/shop#essential-oils' },
+            { id: 3, title: 'Herbs & Botanicals', url: '/shop#herbs-botanicals' },
+            { id: 4, title: 'Home Decor', url: '/shop#home-decor' },
+            { id: 5, title: 'Wellness & Relaxation', url: '/shop#wellness-relaxation' },
           ],
     },
     {

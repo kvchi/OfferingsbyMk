@@ -1,5 +1,7 @@
-import React, { useState }  from 'react'
-import { useNavigate} from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { setAuth } from '../store/auth'
 import { light1 } from '../assets/images'
 import { IoEyeOffOutline, IoEyeOutline, IoKeyOutline, IoPersonCircleOutline, IoPersonOutline } from 'react-icons/io5'
 import toast from 'react-hot-toast';
@@ -17,6 +19,15 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false)
     const [showLogin, setShowLogin] = useState(true)
     const navigate = useNavigate();
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const isAuthenticated = useSelector((store) => store.auth.isAuthenticated);
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigate(location.state?.from?.pathname || '/shop', { replace: true });
+      }
+    }, [isAuthenticated, navigate, location.state]);
 
     const [inputs, setInputs] = useState({
         firstname: "",
@@ -43,12 +54,23 @@ export default function Login() {
             return
          }
          try {
-            const res = await axios.post('http://localhost:4566/api/auth/signup', inputs)
+            const res = await axios.post('http://localhost:4000/api/auth/signup', inputs)
             const data = await res.data
-            toast.success(data.message, {id: "1234"})
+            toast.success(data.message + " Please log in.", {id: "1234"})
+            setEmail(inputs.email)
+            setInputs({
+                firstname: "",
+                lastname: "",
+                phone: "",
+                email: "",
+                password: "",
+                confirm_password: "",
+            })
+            setShowLogin(true)
          } catch (error) {
             console.log(error)
-            toast.error("Unable to create your account. Please try again.", {id: "123"}) 
+            const message = error.response?.data?.message || "Unable to create your account. Please try again."
+            toast.error(message, {id: "1234"})
          }
     };
 
@@ -56,13 +78,15 @@ export default function Login() {
       e.preventDefault();
       toast.loading("Logging in, please wait...", {id:"1234"});
       try {
-        const res = await axios.post('http://localhost:4566/api/auth/login', {email, password });
+        const res = await axios.post('http://localhost:4000/api/auth/login', {email, password });
         const data = await res.data;
-        toast.success("Login successful", {id: "1234"});
-        navigate("/shop");
+        dispatch(setAuth({ token: data.token, user: data.user }));
+        toast.success(data.message, {id: "1234"});
+        navigate(location.state?.from?.pathname || "/shop");
         } catch (error) {
           console.log(error);
-          toast.error("Invalid email or password", {id: "1234"});
+          const message = error.response?.data?.message || "Invalid email or password";
+          toast.error(message, {id: "1234"});
         }
     };
     

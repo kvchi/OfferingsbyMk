@@ -12,6 +12,7 @@ import PhoneNumberInput from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 import 'react-phone-number-input/style.css'
 import { RiLockPasswordLine } from 'react-icons/ri';
+import { createSignupPayload } from '../utils/authPayload.mjs';
 
 export default function Login() {
     const [email, setEmail] = useState("")
@@ -45,16 +46,17 @@ export default function Login() {
     const handleSignup = async(e) => {
         e.preventDefault()
          toast.loading("Creating your account, please wait...", {id:"1234"})
-         if(inputs.password !== inputs.confirm_password) {
+         if(inputs.password.length < 8) {
+            toast.error("Password must be at least 8 characters.",{id:"1234"})
+           return
+         }
+         else if(inputs.password !== inputs.confirm_password) {
             toast.error("Oops! The password entered does not match",{id:"1234"})
            return
          }
-         else if(inputs.phone.length !== 14) {
-           toast.error("Invalid phone number",{id:"1234"})
-            return
-         }
          try {
-            const res = await axios.post('http://localhost:4000/api/auth/signup', inputs)
+            const signupPayload = createSignupPayload(inputs)
+            const res = await axios.post('http://localhost:4000/api/auth/signup', signupPayload)
             const data = await res.data
             toast.success(data.message + " Please log in.", {id: "1234"})
             setEmail(inputs.email)
@@ -77,6 +79,10 @@ export default function Login() {
     const handleLogin = async(e) => {
       e.preventDefault();
       toast.loading("Logging in, please wait...", {id:"1234"});
+      if (password.length < 8) {
+        toast.error("Password must be at least 8 characters.", {id:"1234"});
+        return;
+      }
       try {
         const res = await axios.post('http://localhost:4000/api/auth/login', {email, password });
         const data = await res.data;
@@ -111,7 +117,7 @@ export default function Login() {
           <div 
           className="mb-4 flex items-center gap-1 border-b border-dark/20 dark:border-primary p-2">
           <IoKeyOutline className='dark:text-primary'/>
-            <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required placeholder='*****' minLength={6} className="flex-1 p-1 dark:text-primary outline-none bg-transparent" />
+            <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required placeholder='At least 8 characters' minLength={8} title="Password must be at least 8 characters" className="flex-1 p-1 dark:text-primary outline-none bg-transparent" />
             <span onClick={() => setShowPassword(!showPassword)} className="relative cursor-pointer p-1 dark:text-primary">
                   {
                     showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />
@@ -158,7 +164,7 @@ export default function Login() {
           </div>
           <div className="mb-4 flex items-center gap-1 border-b border-dark/20 dark:border-primary p-2 dark:text-primary">
           <RiLockPasswordLine />
-            <input type={showPassword ? "text" : "password"} value={inputs.password} name='password' onChange={handleChange} required placeholder='*****' minLength={6} className="flex-1 p-1 dark:text-primary outline-none" />
+            <input type={showPassword ? "text" : "password"} value={inputs.password} name='password' onChange={handleChange} required placeholder='At least 8 characters' minLength={8} title="Password must be at least 8 characters" className="flex-1 p-1 dark:text-primary outline-none" />
             <span onClick={() => setShowPassword(!showPassword)} className="relative cursor-pointer p-1 dark:text-primary bg-transparent ">
                   {
                     showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />
@@ -167,7 +173,7 @@ export default function Login() {
           </div>
           <div className="mb-4 flex items-center gap-1 border-b border-dark/20 dark:border-primary p-2 dark:text-primary">
           <RiLockPasswordLine />
-            <input type={showPassword ? "text" : "password"} value={inputs.confirm_password} name='confirm_password' onChange={handleChange} required placeholder='*****' minLength={6} className="flex-1 p-1 dark:text-primary outline-none" />
+            <input type={showPassword ? "text" : "password"} value={inputs.confirm_password} name='confirm_password' onChange={handleChange} required placeholder='Confirm password' minLength={8} title="Password must be at least 8 characters" className="flex-1 p-1 dark:text-primary outline-none" />
             <span onClick={() => setShowPassword(!showPassword)} className="relative cursor-pointer p-1">
                   {
                     showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />
@@ -186,4 +192,3 @@ export default function Login() {
     </main>
   )
 }
-

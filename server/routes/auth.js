@@ -1,54 +1,122 @@
-import express from 'express'
-import {prisma} from "../config/prisma.js"
-import bcryptjs from "bcryptjs"  
+import express from "express";
+import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+import { prisma } from "../config/prisma.js";
 
-const router = express.Router()
+const emailSchema = z.string().trim().email().max(254).transform((value) => value.toLowerCase());
+const phoneSchema = z
+  .string()
+  .trim()
+  .transform((value) => value.replace(/[\s().-]/g, ""))
+  .refine((value) => /^\+?[1-9]\d{6,14}$/.test(value), "Invalid phone number")
+  .optional()
+  .or(z.literal("").transform(() => undefined));
 
-// signup routes
-router.post('/signup', async(req,res) => {
-    const { firstname, lastname, email, password, image, phone } = req.body; //object destructuring
-    const findExistingEmail = await prisma.user.findFirst({
-        where: { email: email.toLowerCase()}
-    })
-    if(findExistingEmail) {
-        return res.status(403).json({error: true, message: `This email already exists`})
+const signupSchema = z.object({
+  firstname: z.string().trim().min(1).max(80),
+  lastname: z.string().trim().min(1).max(80),
+  email: emailSchema,
+  password: z.string().min(8).max(72),
+  phone: phoneSchema,
+}).strict();
+
+const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1).max(72),
+}).strict();
+
+const invalidInput = (res) =>
+  res.status(400).json({ error: true, message: "Invalid request data." });
+
+export function createAuthRouter({ secret, authenticate }) {
+  const router = express.Router();
+
+router.post("/signup", async (req, res) => {
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) return invalidInput(res);
+
+  const { firstname, lastname, email, password, phone } = parsed.data;
+
+  try {
+    const passwordHash = await bcryptjs.hash(password, 12);
+
+    await prisma.user.create({
+      data: {
+        firstName: firstname,
+        lastName: lastname,
+        email,
+        passwordHash,
+        phone,
+      },
+    });
+
+    return res.status(201).json({
+      error: false,
+      message: "Profile created successfully. Welcome to OfferingsbyMK!",
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return res.status(409).json({ error: true, message: "Unable to create account." });
     }
-    else {
-        //Hash or encrypt the password
-        const salt = await bcryptjs.genSalt(10), hashPassword = await bcryptjs.hash(password, salt)
-        try {
-            //save user details in the database
-            await prisma.user.create({
-                data: { firstname, lastname,email: email.toLowerCase(), password: hashPassword, image, phone }
-            })
-            return res.status(201).json({error: false, message: `Profile created successfully. Welcome to OfferingsbyMK!`})
-        } catch (error) {
-            console.log({error})
-            return res.status(500).json({error: true, message: " Unable to create account. Something went wrong."})
-        }
-    }
+
+    return res.status(500).json({
+      error: true,
+      message: "Unable to create account. Something went wrong.",
+    });
+  }
 });
 
-// login routes
-router.post('/login', async(req,res) => {
-    const { email, password } = req.body; //object destructuring
-    try {
-        const user = await prisma.user.findFirst({
-            where: { email: email.toLowerCase() }
-            })
-            if(!user) {
-                return res.status(403).json({error: true, message: `This email does not`})
-            }
-            const isMatch = await bcryptjs.compare(password, user.password);
-            if(!isMatch) {
-                return res.status(403).json({error: true, message: `Invalid password`})
-            }
+router.post("/login", async (req, res) => {
+  const parsed = loginSchema.safeParse(req.body);
+  if (!parsed.success) return invalidInput(res);
 
-            return res.status(200).json({ error: false, message: 'Login successful'});
-            } catch (error) {
-                console.log({error});
-                return res.status(500).json({error: true, message: " Unable to login." });
-                }
-                });
+  const { email, password } = parsed.data;
 
-export default router
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    const isMatch = user ? await bcryptjs.compare(password, user.passwordHash) : false;
+    if (!user || !isMatch || user.status !== "ACTIVE") {
+      return res.status(401).json({ error: true, message: "Invalid email or password." });
+    }
+
+    const token = jwt.sign(
+      { email: user.email, role: user.role },
+      secret,
+      { algorithm: "HS256", expiresIn: "7d", subject: user.id }
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        firstname: user.firstName,
+        lastname: user.lastName,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch {
+    return res.status(500).json({
+      error: true,
+      message: "Unable to login.",
+    });
+  }
+});
+
+router.get("/me", authenticate, (req, res) => {
+  const { id, firstName, lastName, email, phone, status, role, createdAt, updatedAt } = req.user;
+  return res.json({
+    error: false,
+    user: { id, firstname: firstName, lastname: lastName, email, phone, status, role, createdAt, updatedAt },
+  });
+});
+
+  return router;
+}

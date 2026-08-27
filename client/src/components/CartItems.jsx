@@ -1,11 +1,10 @@
 import React from 'react'
-import { productsById } from '../data/productCatalog';
 import { useDispatch } from 'react-redux';
 import { changeQuantity } from '../store/cart';
+import { formatNaira } from '../utils/money';
 
 export default function CartItems(props) {
-    const {productId, quantity} = props.data;
-    const detail = productsById.get(productId);
+    const {productId, quantity, product, lineTotalKobo} = props.data;
     const dispatch = useDispatch();
 
         const handleMinusQuantity = () => {
@@ -21,24 +20,15 @@ export default function CartItems(props) {
           }));
         }
 
-        if (!detail) {
-          return null;
-      }
-
-        // Convert the price to a number by stripping out non-numeric characters
-    const numericPrice = parseFloat(detail.price.replace(/[^0-9.-]+/g, ""));
-
-
-        
   return (
     <div className='flex justify-between items-center bg-slate-600 text-white p-2 border-b-2 border-slate-700 gap-5 rounded-md'>
-        <img src={detail.image} alt=""  className='w-12'/>
-        <h3>{detail.title}</h3>
-        <p>{numericPrice * quantity}</p>
+        <img src={product.image} alt={product.title} className='w-12'/>
+        <h3>{product.title}</h3>
+        <p>{formatNaira(lineTotalKobo)}</p>
         <div className='w-20 flex justify-between'>
-            <button className='bg-gray-300 rounded-full w-6 h-6 text-primary' onClick={handleMinusQuantity}>-</button>
+            <button type='button' aria-label={`Decrease ${product.title} quantity`} className='bg-gray-300 rounded-full w-6 h-6 text-primary' onClick={handleMinusQuantity}>-</button>
             <span>{quantity}</span>
-            <button className='bg-gray-300 rounded-full w-6 h-6 text-primary' onClick={handlePlusQuantity}>+</button>
+            <button type='button' aria-label={`Increase ${product.title} quantity`} className='bg-gray-300 rounded-full w-6 h-6 text-primary' onClick={handlePlusQuantity}>+</button>
         </div>
     </div>
   )

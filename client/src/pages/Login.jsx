@@ -5,7 +5,7 @@ import { setAuth } from '../store/auth'
 import { light1 } from '../assets/images'
 import { IoEyeOffOutline, IoEyeOutline, IoKeyOutline, IoPersonCircleOutline, IoPersonOutline } from 'react-icons/io5'
 import toast from 'react-hot-toast';
-import axios from 'axios'
+import api from '../api/client'
 import { BsPersonSquare } from 'react-icons/bs';
 import { TbMailForward } from 'react-icons/tb';
 import PhoneNumberInput from 'react-phone-number-input'
@@ -56,7 +56,7 @@ export default function Login() {
          }
          try {
             const signupPayload = createSignupPayload(inputs)
-            const res = await axios.post('http://localhost:4000/api/auth/signup', signupPayload)
+            const res = await api.post('/api/auth/signup', signupPayload)
             const data = await res.data
             toast.success(data.message + " Please log in.", {id: "1234"})
             setEmail(inputs.email)
@@ -70,7 +70,6 @@ export default function Login() {
             })
             setShowLogin(true)
          } catch (error) {
-            console.log(error)
             const message = error.response?.data?.message || "Unable to create your account. Please try again."
             toast.error(message, {id: "1234"})
          }
@@ -84,13 +83,12 @@ export default function Login() {
         return;
       }
       try {
-        const res = await axios.post('http://localhost:4000/api/auth/login', {email, password });
+        const res = await api.post('/api/auth/login', {email, password });
         const data = await res.data;
         dispatch(setAuth({ token: data.token, user: data.user }));
         toast.success(data.message, {id: "1234"});
         navigate(location.state?.from?.pathname || "/shop");
         } catch (error) {
-          console.log(error);
           const message = error.response?.data?.message || "Invalid email or password";
           toast.error(message, {id: "1234"});
         }

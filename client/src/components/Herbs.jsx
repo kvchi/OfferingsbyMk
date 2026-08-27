@@ -1,13 +1,12 @@
 import React from 'react'
 import { herbsData } from '../data/herbsData'
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/cart';
 import { toast } from 'react-hot-toast';
 import { BsCart4 } from 'react-icons/bs';
+import { formatNaira } from '../utils/money';
 
 export default function Herbs() {
-  const carts = useSelector(store => store.cart.items );
-  console.log(carts);
   const dispatch = useDispatch();
 
   const handleAddToCart = (id) => {
@@ -34,7 +33,7 @@ export default function Herbs() {
             </p> 
           <div className="flex justify-between items-center gap-6">
             <p> 
-                <span className="text-lg font-medium text-slate-600 dark:text-primary mt-2 underline">{el.price}</span>
+                <span className="text-lg font-medium text-slate-600 dark:text-primary mt-2 underline">{formatNaira(el.priceKobo)}</span>
             </p>
             <button className="bg-primary hover:bg-primary/50 text-slate-600 font-bold p-2 rounded-md flex justify-center items-center gap-2 " onClick={() => handleAddToCart(el.id)}><BsCart4 className='w-6 text-2xl text-gray' /></button>
           </div>

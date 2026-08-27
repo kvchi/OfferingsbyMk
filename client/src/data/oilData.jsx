@@ -5,31 +5,31 @@ export const oilData = [
         id: 'oil-rose',
         image: roseOil,
         title: 'Rose Oil',
-        price: '\u20A6'+'45,000',
+        priceKobo: 4_500_000,
     },
     {
         id: 'oil-lavender',
         image: lavenderOil,
         title: 'Lavender Oil',
-        price: '\u20A6'+'65,000',
+        priceKobo: 6_500_000,
     },
     {
         id: 'oil-olive',
         image: oil,
         title: 'Olive Oil',
-        price: '\u20A6'+'25,000',
+        priceKobo: 2_500_000,
     },
     {
         id: 'oil-coconut',
         image: oil1,
         title: 'Coconut Oil',
-        price: '\u20A6'+'35,000',
+        priceKobo: 3_500_000,
     },
     {
         id: 'oil-tea-tree',
         image: oil2,
         title: 'Tea Tree Oil',
-        price: '\u20A6'+'55,000',
+        priceKobo: 5_500_000,
     },
     
 ]

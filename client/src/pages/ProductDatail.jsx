@@ -5,6 +5,8 @@ import { BsCart4 } from 'react-icons/bs';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/cart';
 import {toast} from 'react-hot-toast';
+import { formatNaira } from '../utils/money';
+import { MAX_CART_QUANTITY } from '../store/cart';
 
 
 export default function ProductDatail() {
@@ -21,7 +23,7 @@ export default function ProductDatail() {
         setQuantity(quantity - 1 < 1 ? 1 : quantity -1);
     }
     const handlePlusQuantity = () => {
-        setQuantity(quantity + 1);
+        setQuantity(Math.min(quantity + 1, MAX_CART_QUANTITY));
         }
 
         const handleAddToCart = (id) => {
@@ -37,7 +39,7 @@ export default function ProductDatail() {
         <div className=''>
         <img src={product.image} alt={product.title} className="w-[300px] h-[400px] object-cover rounded-md"/>
         <h1 className='text-3xl font-bold text-slate-600 dark:text-primary text-center'>{product.title}</h1>
-        <p className='text-lg font-medium text-slate-600 dark:text-primary text-center'>{product.price}</p>
+        <p className='text-lg font-medium text-slate-600 dark:text-primary text-center'>{formatNaira(product.priceKobo)}</p>
         <div className='flex gap-5 mt-2 items-center justify-between '>
             <div className='flex gap-2 justify-center items-center'>
                 <button className='bg-gray-300 h-full w-10 font-bold text-xl rounded-xl flex justify-center items-center'onClick={handleMinusQuantity}>-</button>

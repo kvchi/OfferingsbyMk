@@ -11,6 +11,7 @@ import Shop from './pages/Shop';
 import ProductDatail from './pages/ProductDatail';
 import CartTab from './components/CartTab';
 import Login from './pages/Login';
+import AuthInitializer from './components/AuthInitializer';
 
 
 
@@ -69,9 +70,11 @@ export default function App() {
 ]);
 
   return (
+      <AuthInitializer>
       <div>
         <Toaster />
         <RouterProvider router={Routes}></RouterProvider>
       </div>
+      </AuthInitializer>
       );
 }

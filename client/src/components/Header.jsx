@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { MdPanoramaPhotosphere } from 'react-icons/md'
 import { Link, useNavigate } from 'react-router-dom'
 import { headerData } from '../data/headerData'
@@ -6,7 +6,7 @@ import { RiMenu4Line } from 'react-icons/ri';
 import DarkMode from './DarkMode';
 import { BsCart4 } from 'react-icons/bs';
 import { useSelector, useDispatch } from 'react-redux';
-import { toggleStatusTab } from '../store/cart';
+import { selectCartTotalQuantity, toggleStatusTab } from '../store/cart';
 import { logout } from '../store/auth';
 import toast from 'react-hot-toast';
 
@@ -15,20 +15,11 @@ export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const leftLinks = headerData.slice(0,3);
   const rightLinks = headerData.slice(3);
-  const [totalQuantity, setTotalQuantity] = useState(0);
-  const carts = useSelector(store => store.cart.items);
+  const totalQuantity = useSelector(selectCartTotalQuantity);
   const isAuthenticated = useSelector(store => store.auth.isAuthenticated);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  //Use useeffect to process
-
-  useEffect(() => {
-    let total = 0;
-    carts.forEach(item => total += item.quantity);
-    setTotalQuantity(total)
-  }, [carts])
-
   const toggleMenu = () => {
     setShowMenu(!showMenu); // Toggle menu visibility
   };

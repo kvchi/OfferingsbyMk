@@ -13,68 +13,62 @@ import CartTab from './components/CartTab';
 import Login from './pages/Login';
 import AuthInitializer from './components/AuthInitializer';
 
-
-
-export default function App() {
-
-  function PageOutlet(){
-
-
-    
-      return (
-    
-    
-        <> 
-          <Header />
-          <CartTab />
-          <Outlet />
-          <Footer />
-        </>
-      )
-  } 
-
-  const Routes = createBrowserRouter([
-    {
-      path: '/',
-      element: <PageOutlet />,
-      children: [
-        {
-          path: '/',
-          element: <Home />,
-        },
-        {
-          path: '/about',
-          element: <About />,
-        },
-        {
-          path: '/login',
-          element: <Login />,
-        },
-        {
-          path: '/shop',
-          element: <Shop />,
-        },
-        {
-          path: '/product/:id',
-          element: <ProductDetail />,
-        },
-  ],
-  errorElement: (
-    <>
-     <Header />
-     <Error />
-     <Footer />
-    </>
-  ),
-}
-]);
-
+function PageOutlet() {
   return (
-      <AuthInitializer>
+    <>
+      <Header />
+      <CartTab />
+      <Outlet />
+      <Footer />
+    </>
+  );
+}
+
+export const appRoutes = [
+  {
+    path: '/',
+    element: <PageOutlet />,
+    children: [
+      {
+        path: '/',
+        element: <Home />,
+      },
+      {
+        path: '/about',
+        element: <About />,
+      },
+      {
+        path: '/login',
+        element: <Login />,
+      },
+      {
+        path: '/shop',
+        element: <Shop />,
+      },
+      {
+        path: '/product/:id',
+        element: <ProductDetail />,
+      },
+    ],
+    errorElement: (
+      <>
+        <Header />
+        <Error />
+        <Footer />
+      </>
+    ),
+  },
+];
+
+export const appRouter = createBrowserRouter(appRoutes);
+
+export default function App({ router = appRouter }) {
+  return (
+    <AuthInitializer>
       <div>
         <Toaster />
-        <RouterProvider router={Routes}></RouterProvider>
+        <RouterProvider router={router} />
       </div>
-      </AuthInitializer>
-      );
+    </AuthInitializer>
+  );
 }

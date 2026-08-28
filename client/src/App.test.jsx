@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from './App';
+import { createMemoryRouter } from 'react-router-dom';
+import App, { appRoutes } from './App';
 import store from './store';
 
 vi.mock('aos', () => ({ default: { init: vi.fn(), refresh: vi.fn() } }));
@@ -13,10 +14,10 @@ vi.mock('swiper/react', () => ({
 }));
 
 const renderAt = (path) => {
-  window.history.pushState({}, '', path);
+  const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
   return render(
     <Provider store={store}>
-      <App />
+      <App router={router} />
     </Provider>,
   );
 };
@@ -53,6 +54,15 @@ describe('application route and layout smoke tests', () => {
     expect(screen.getByRole('heading', { name: /page not found/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /go to home/i })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: /browse shop/i })).toHaveAttribute('href', '/shop');
+  });
+
+  it('does not emit obsolete React Router 6 future-flag warnings', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    renderAt('/');
+
+    expect(warning.mock.calls.flat().join(' ')).not.toMatch(/React Router Future Flag Warning|v7_/i);
+    warning.mockRestore();
   });
 });
 

@@ -67,13 +67,14 @@ describe('canonical product detail route', () => {
   it('enforces quantity minimum and maximum with an accessible maximum state', () => {
     renderProductDetail('candle-soy-wax');
     const decrease = screen.getByRole('button', { name: 'Decrease Soy Wax quantity' });
+    const increase = screen.getByRole('button', { name: 'Increase Soy Wax quantity' });
     const quantity = screen.getByLabelText('Soy Wax quantity');
 
     expect(decrease).toBeDisabled();
     expect(quantity).toHaveTextContent('1');
 
     for (let currentQuantity = 1; currentQuantity < MAX_CART_QUANTITY; currentQuantity += 1) {
-      fireEvent.click(screen.getByRole('button', { name: 'Increase Soy Wax quantity' }));
+      fireEvent.click(increase);
     }
 
     expect(quantity).toHaveTextContent(String(MAX_CART_QUANTITY));

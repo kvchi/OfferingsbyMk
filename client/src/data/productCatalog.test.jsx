@@ -6,10 +6,18 @@ describe('product catalog integrity', () => {
   it('contains only unique IDs and positive integer kobo prices', () => {
     const lookup = createProductLookup(productCatalog);
 
+    expect(productCatalog).toHaveLength(29);
     expect(lookup.size).toBe(productCatalog.length);
     for (const product of productCatalog) {
       expect(Number.isInteger(product.priceKobo)).toBe(true);
       expect(product.priceKobo).toBeGreaterThan(0);
+      expect(product.category).toEqual(expect.any(String));
+      expect(product.category.length).toBeGreaterThan(0);
+      expect(product.shopSection).toEqual(expect.any(String));
+      expect(product.shopSection.length).toBeGreaterThan(0);
+      expect(product.imageAlt).toEqual(expect.any(String));
+      expect(product.imageAlt.length).toBeGreaterThan(0);
+      expect(product.description === undefined || typeof product.description === 'string').toBe(true);
     }
   });
 

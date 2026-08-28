@@ -8,7 +8,7 @@ import { Footer, Header } from './components';
 import Error from './pages/Error';
 import Shop from './pages/Shop';
 
-import ProductDatail from './pages/ProductDatail';
+import ProductDetail from './pages/ProductDetail';
 import CartTab from './components/CartTab';
 import Login from './pages/Login';
 import AuthInitializer from './components/AuthInitializer';
@@ -56,7 +56,7 @@ export default function App() {
         },
         {
           path: '/product/:id',
-          element: <ProductDatail />, 
+          element: <ProductDetail />,
         },
   ],
   errorElement: (

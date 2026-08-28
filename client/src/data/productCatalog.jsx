@@ -5,13 +5,20 @@ import { oilData } from './oilData';
 import { productData } from './productData';
 import { wellnessData } from './wellnessData';
 
+const addCatalogMetadata = (products, category, shopSection) => products.map((product) => ({
+  ...product,
+  category: product.category ?? category,
+  shopSection: product.shopSection ?? shopSection,
+  imageAlt: product.imageAlt ?? product.alt ?? `${product.title} product`,
+}));
+
 export const productCatalog = [
-  ...productData,
-  ...candleData,
-  ...oilData,
-  ...herbsData,
-  ...homeDecorData,
-  ...wellnessData,
+  ...addCatalogMetadata(productData, 'Featured Products', ''),
+  ...addCatalogMetadata(candleData, 'Candles', 'candles'),
+  ...addCatalogMetadata(oilData, 'Essential Oils', 'essential-oils'),
+  ...addCatalogMetadata(herbsData, 'Herbs & Botanicals', 'herbs-botanicals'),
+  ...addCatalogMetadata(homeDecorData, 'Home Decorations', 'home-decor'),
+  ...addCatalogMetadata(wellnessData, 'Wellness & Relaxation', 'wellness-relaxation'),
 ];
 
 export function createProductLookup(products) {

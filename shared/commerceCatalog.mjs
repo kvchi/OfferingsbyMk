@@ -1,0 +1,76 @@
+export const SUPPORTED_CURRENCY = 'NGN';
+
+export const commerceCategories = Object.freeze([
+  Object.freeze({ id: 'category-candles', name: 'Candles', slug: 'candles', active: true }),
+  Object.freeze({ id: 'category-essential-oils', name: 'Essential Oils', slug: 'essential-oils', active: true }),
+  Object.freeze({ id: 'category-herbs-botanicals', name: 'Herbs & Botanicals', slug: 'herbs-botanicals', active: true }),
+  Object.freeze({ id: 'category-home-decor', name: 'Home Decorations', slug: 'home-decor', active: true }),
+  Object.freeze({ id: 'category-wellness-relaxation', name: 'Wellness & Relaxation', slug: 'wellness-relaxation', active: true }),
+]);
+
+const product = (id, title, priceKobo, categoryId, description) => Object.freeze({
+  id,
+  title,
+  priceKobo,
+  categoryId,
+  description: description ?? null,
+  currency: SUPPORTED_CURRENCY,
+  active: true,
+  available: true,
+});
+
+export const commerceProducts = Object.freeze([
+  product(
+    'featured-rosemary',
+    'Rosemary',
+    1_500_000,
+    'category-herbs-botanicals',
+    'Experience the soothing and invigorating scent of our Rosemary. Perfect for relaxation and enhancing your space with its fresh, herbaceous aroma. Handcrafted to bring a touch of nature into your home, this product is ideal for creating a calming environment and enhancing your well-being.',
+  ),
+  product(
+    'featured-lavender',
+    'Lavendar',
+    2_500_000,
+    'category-herbs-botanicals',
+    'Our Lavender product offers a delicate and calming fragrance that promotes relaxation and peace of mind. Ideal for winding down after a long day, this lavender-infused item helps create a serene and comforting atmosphere, making it a perfect addition to any bedroom or living space.',
+  ),
+  product(
+    'featured-vase',
+    'Vase',
+    2_000_000,
+    'category-home-decor',
+    'Embrace the essence of serenity with our Tranquil Harmony Vase. Crafted with meticulous attention to detail, this elegant vase serves as a sanctuary for your most cherished flowers, bringing a touch of peace and beauty into any space. Its smooth, flowing lines and natural tones are designed to resonate with the calm of nature, making it the perfect centerpiece for those seeking a deeper connection to their surroundings',
+  ),
+  product(
+    'featured-candles',
+    'Candles',
+    1_500_000,
+    'category-candles',
+    "Illuminate your space with our premium candles, crafted to provide a gentle and inviting glow. Each candle is made with high-quality ingredients to ensure a long-lasting burn and a beautiful, soothing fragrance that enhances any room's ambiance. Perfect for creating a cozy and welcoming atmosphere.",
+  ),
+  product('candle-soy-wax', 'Soy Wax', 1_500_000, 'category-candles'),
+  product('candle-pillar', 'Pillar Candles', 1_800_000, 'category-candles'),
+  product('candle-massage', 'Massage Candles', 2_500_000, 'category-candles'),
+  product('candle-decorative', 'Decorative Candles', 3_500_000, 'category-candles'),
+  product('candle-scented', 'Scented Candles', 1_000_000, 'category-candles'),
+  product('oil-rose', 'Rose Oil', 4_500_000, 'category-essential-oils'),
+  product('oil-lavender', 'Lavender Oil', 6_500_000, 'category-essential-oils'),
+  product('oil-olive', 'Olive Oil', 2_500_000, 'category-essential-oils'),
+  product('oil-coconut', 'Coconut Oil', 3_500_000, 'category-essential-oils'),
+  product('oil-tea-tree', 'Tea Tree Oil', 5_500_000, 'category-essential-oils'),
+  product('herb-melissa', 'Melissa', 2_500_000, 'category-herbs-botanicals'),
+  product('herb-smudge-sticks', 'Smudge Sticks', 2_000_000, 'category-herbs-botanicals'),
+  product('herb-oregano', 'Oregano', 3_500_000, 'category-herbs-botanicals'),
+  product('herb-lavender', 'Lavender', 1_500_000, 'category-herbs-botanicals'),
+  product('herb-rosemary', 'Rosemary', 2_500_000, 'category-herbs-botanicals'),
+  product('decor-pink-vase', 'Pink Vase', 5_000_000, 'category-home-decor'),
+  product('decor-ceramic-vase', 'Ceramic vase', 6_500_000, 'category-home-decor'),
+  product('decor-harmony-vase', 'Harmony vase', 7_500_000, 'category-home-decor'),
+  product('decor-ceramic-chandeliers', 'Ceramic Chandaliers', 18_500_000, 'category-home-decor'),
+  product('decor-floor-vase', 'Floor vase', 5_500_000, 'category-home-decor'),
+  product('wellness-meditation-crystals', 'Meditation Crystals', 2_500_000, 'category-wellness-relaxation'),
+  product('wellness-aromatic-diffusers', 'Aromatic D1ffusers', 4_000_000, 'category-wellness-relaxation'),
+  product('wellness-face-rollers', 'Rose Face Rollers', 3_500_000, 'category-wellness-relaxation'),
+  product('wellness-yoga-mats', 'Balancing Yoga Mats', 1_500_000, 'category-wellness-relaxation'),
+  product('wellness-incense-sticks', 'Calming Incense Sticks', 500_000, 'category-wellness-relaxation'),
+]);

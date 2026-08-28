@@ -18,4 +18,103 @@ model User {
   role         String   @default("CUSTOMER")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  orders       Order[]
+}
+
+model Category {
+  id        String    @id
+  name      String
+  slug      String    @unique
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@index([active])
+}
+
+model Product {
+  id          String      @id
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  title       String
+  description String?
+  priceKobo   Int
+  currency    String      @default("NGN")
+  active      Boolean     @default(true)
+  available   Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+  @@index([active, available])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  idempotencyKey String
+  status         String      @default("PENDING")
+  paymentStatus  String      @default("UNPAID")
+  currency       String      @default("NGN")
+  subtotalKobo   BigInt
+  shippingKobo   BigInt      @default(0)
+  totalKobo      BigInt
+  recipientName  String
+  phone          String
+  addressLine1   String
+  addressLine2   String?
+  cityOrLga      String
+  state          String
+  postalCode     String?
+  country        String      @default("Nigeria")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  items          OrderItem[]
+  payments       Payment[]
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([paymentStatus])
+}
+
+model OrderItem {
+  id                   String   @id @default(cuid())
+  orderId              String
+  order                Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  productId            String
+  product              Product  @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  productIdSnapshot    String
+  productTitleSnapshot String
+  unitPriceKobo        Int
+  quantity             Int
+  lineTotalKobo        BigInt
+  createdAt            DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id                 String    @id @default(cuid())
+  orderId            String
+  order              Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  provider           String
+  reference          String    @unique
+  providerReference  String?   @unique
+  expectedAmountKobo BigInt
+  currency           String    @default("NGN")
+  status             String
+  failureMessage     String?
+  initializedAt      DateTime?
+  verifiedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([provider, status])
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createProductLookup, productCatalog } from './productCatalog';
 import { formatNaira } from '../utils/money';
+import { commerceProducts } from '../../../shared/commerceCatalog.mjs';
 
 describe('product catalog integrity', () => {
   it('contains only unique IDs and positive integer kobo prices', () => {
@@ -17,7 +18,7 @@ describe('product catalog integrity', () => {
       expect(product.shopSection.length).toBeGreaterThan(0);
       expect(product.imageAlt).toEqual(expect.any(String));
       expect(product.imageAlt.length).toBeGreaterThan(0);
-      expect(product.description === undefined || typeof product.description === 'string').toBe(true);
+      expect(product.description === null || typeof product.description === 'string').toBe(true);
     }
   });
 
@@ -32,5 +33,22 @@ describe('product catalog integrity', () => {
 
   it('formats kobo as Nigerian naira only at display time', () => {
     expect(formatNaira(1_500_000)).toMatch(/₦\s?15,000/);
+  });
+
+  it('hydrates every UI product from the shared authoritative commerce fields', () => {
+    const commerceFields = ({ id, title, priceKobo, categoryId, description, currency, active, available }) => ({
+      id,
+      title,
+      priceKobo,
+      categoryId,
+      description,
+      currency,
+      active,
+      available,
+    });
+    const byId = (left, right) => left.id.localeCompare(right.id);
+
+    expect(productCatalog.map(commerceFields).sort(byId))
+      .toEqual(commerceProducts.map(commerceFields).sort(byId));
   });
 });

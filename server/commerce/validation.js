@@ -44,3 +44,11 @@ export function multiplyKobo(unitPriceKobo, quantity) {
 export function toDatabaseBigInt(value, fieldName = 'amountKobo') {
   return BigInt(assertNonNegativeKobo(value, fieldName));
 }
+
+export function toJsonKobo(value, fieldName = 'amountKobo') {
+  if (typeof value !== 'bigint' && typeof value !== 'number') {
+    throw new TypeError(`${fieldName} must be an integer amount`);
+  }
+  const converted = Number(value);
+  return assertNonNegativeKobo(converted, fieldName);
+}

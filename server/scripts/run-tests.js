@@ -51,7 +51,9 @@ try {
   for (const target of testArtifacts) rmSync(target, { force: true });
   if (run([prismaCli, "migrate", "deploy"])) {
     if (run(["--test", "test/auth.smoke.test.js"])) {
-      run(["--test", "test/commerce.smoke.test.js"]);
+      if (run(["--test", "test/commerce.smoke.test.js"])) {
+        run(["--test", "test/checkout.smoke.test.js"]);
+      }
     }
   }
 } finally {

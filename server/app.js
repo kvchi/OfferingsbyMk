@@ -6,6 +6,8 @@ import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import { pathToFileURL } from "node:url";
 import { createAuthRouter } from "./routes/auth.js";
+import { createCheckoutRouter } from "./routes/checkout.js";
+import { createOrdersRouter } from "./routes/orders.js";
 import { createAuthenticate } from "./middleware/authenticate.js";
 import { loadEnv } from "./config/env.js";
 
@@ -40,6 +42,19 @@ const authLimiter = rateLimit({
 });
 const authenticate = createAuthenticate(env.SECRET);
 app.use("/api/auth", authLimiter, createAuthRouter({ secret: env.SECRET, authenticate }));
+app.use("/api/checkout", createCheckoutRouter({ authenticate }));
+app.use("/api/orders", createOrdersRouter({ authenticate }));
+
+app.use((error, req, res, next) => {
+  if (error?.type === "entity.parse.failed") {
+    return res.status(400).json({
+      error: true,
+      code: "VALIDATION_ERROR",
+      message: "Invalid JSON request.",
+    });
+  }
+  return next(error);
+});
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   app.listen(env.PORT, () => {

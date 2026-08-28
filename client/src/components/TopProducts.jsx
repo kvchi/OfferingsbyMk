@@ -26,8 +26,8 @@ export default function TopProducts() {
                 {el.title}</h1>
                 <p className="text-gray-600 group-hover:text-primary duration-300 text-sm line-clamp-2 dark:text-primary">
                   {el.description}</p>
-                  <button className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-2 rounded-full mt-6">
-                      Place Order
+                  <button type='button' disabled title='Ordering coming soon' className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-2 rounded-full mt-6 disabled:cursor-not-allowed disabled:opacity-60">
+                      Place Order — Coming Soon
                   </button>
                   
             </div>

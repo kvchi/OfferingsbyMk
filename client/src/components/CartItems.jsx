@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch } from 'react-redux';
-import { changeQuantity } from '../store/cart';
+import { changeQuantity, MAX_CART_QUANTITY } from '../store/cart';
 import { formatNaira } from '../utils/money';
 
 export default function CartItems(props) {
@@ -26,9 +26,9 @@ export default function CartItems(props) {
         <h3>{product.title}</h3>
         <p>{formatNaira(lineTotalKobo)}</p>
         <div className='w-20 flex justify-between'>
-            <button type='button' aria-label={`Decrease ${product.title} quantity`} className='bg-gray-300 rounded-full w-6 h-6 text-primary' onClick={handleMinusQuantity}>-</button>
+            <button type='button' aria-label={`Decrease ${product.title} quantity`} className='bg-gray-300 rounded-full w-6 h-6 text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-600' onClick={handleMinusQuantity}>-</button>
             <span>{quantity}</span>
-            <button type='button' aria-label={`Increase ${product.title} quantity`} className='bg-gray-300 rounded-full w-6 h-6 text-primary' onClick={handlePlusQuantity}>+</button>
+            <button type='button' disabled={quantity >= MAX_CART_QUANTITY} aria-label={quantity >= MAX_CART_QUANTITY ? `${product.title} is at the maximum quantity of ${MAX_CART_QUANTITY}` : `Increase ${product.title} quantity`} title={quantity >= MAX_CART_QUANTITY ? `Maximum quantity is ${MAX_CART_QUANTITY}` : undefined} className='bg-gray-300 rounded-full w-6 h-6 text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-600 disabled:cursor-not-allowed disabled:opacity-50' onClick={handlePlusQuantity}>+</button>
         </div>
     </div>
   )

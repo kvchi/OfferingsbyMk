@@ -58,31 +58,31 @@ export default function Shop() {
           </div>
              <ShopItems /> 
         </section>
-        <section id='candles' className='py-8 scroll-mt-8'>
+        <section id='candles' className='py-8 scroll-mt-20 md:scroll-mt-24'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Candles</h2>
           </div>
           <Candles />
         </section>
-        <section id='essential-oils' className='py-8 scroll-mt-8'>
+        <section id='essential-oils' className='py-8 scroll-mt-20 md:scroll-mt-24'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Essential Oils</h2>
           </div>
           <Oil />
         </section>
-        <section id='herbs-botanicals' className='py-8 scroll-mt-8'>
+        <section id='herbs-botanicals' className='py-8 scroll-mt-20 md:scroll-mt-24'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Herbs & Botanicals</h2>
           </div>
           <Herbs />
         </section>
-        <section id='home-decor' className='py-8 scroll-mt-8'>
+        <section id='home-decor' className='py-8 scroll-mt-20 md:scroll-mt-24'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Home Decorations</h2>
           </div>
           <HomeDecor />
         </section>
-        <section id='wellness-relaxation' className='py-8 scroll-mt-8'>
+        <section id='wellness-relaxation' className='py-8 scroll-mt-20 md:scroll-mt-24'>
         <div className='container mx-auto bg-primary dark:bg-secondary p-4 flex shadow-2xl'>
             <h2 className='text-3xl font-bold text-slate-600 dark:text-primary '>Wellness & Relaxation</h2>
           </div>

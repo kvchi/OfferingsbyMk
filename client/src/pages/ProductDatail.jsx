@@ -1,5 +1,5 @@
 import React, { useState} from 'react'
-import {useParams} from 'react-router-dom'
+import {Link, useParams} from 'react-router-dom'
 import { productData } from '../data/productData';
 import { BsCart4 } from 'react-icons/bs';
 import { useDispatch } from 'react-redux';
@@ -16,7 +16,16 @@ export default function ProductDatail() {
     const dispatch = useDispatch();
 
     if (!product) {
-        return <p>Product not found</p>;
+        return (
+          <main className='container mx-auto min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4 text-center dark:bg-slate-800'>
+            <h1 className='text-3xl font-bold text-slate-700 dark:text-primary'>Product not found</h1>
+            <p className='text-slate-600 dark:text-primary'>This product may no longer be available.</p>
+            <div className='flex gap-4'>
+              <Link to='/shop' className='rounded-md bg-primary px-4 py-2 text-slate-800'>Browse Shop</Link>
+              <Link to='/' className='rounded-md border border-primary px-4 py-2 text-slate-700 dark:text-primary'>Go to Home</Link>
+            </div>
+          </main>
+        );
     }
 
     const handleMinusQuantity = () => {

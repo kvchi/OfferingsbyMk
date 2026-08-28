@@ -17,6 +17,7 @@ import { testimonials } from "../data/testimonials";
 import Products from "../components/Products";
 
 import TopProducts from "../components/TopProducts";
+import { Link } from 'react-router-dom';
 
 
 export default function Home() {
@@ -77,8 +78,8 @@ export default function Home() {
             data-aos-once='true'
             data-aos-duration='800'
             className="flex justify-center items-center gap-1 ">
-              <button className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-2 rounded-full mt-6">
-                Place Order
+              <button type='button' disabled title='Ordering coming soon' className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-2 rounded-full mt-6 disabled:cursor-not-allowed disabled:opacity-60">
+                Place Order — Coming Soon
               </button>
               <BsArrowUpRightCircle className="text-5xl mt-6 text-slate-600 dark:text-primary" />
             </div>
@@ -98,9 +99,9 @@ export default function Home() {
        <Products />
         {/*View ALL button*/}
         <div className="flex justify-center">
-        <button className="font-semibold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-3 rounded-full mt-10 ">
-                View All Button
-              </button>
+        <Link to='/shop' className="font-semibold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-3 rounded-full mt-10 ">
+                View All Products
+              </Link>
         </div>
       </section>
       <section className="container mx-auto py-10 dark:bg-slate-600 ">
@@ -170,8 +171,11 @@ export default function Home() {
                 className="text-2xl text-center text-slate-900 font-semibold dark:text-primary">Get Notified About New Products</h1>
                 <input data-aos='fade-up'
                 type="text"
+                disabled
+                aria-label='Newsletter signup unavailable, coming soon'
                 placeholder="Enter your email"
-                className="w-full text-center p-3 rounded-md "/>
+                className="w-full text-center p-3 rounded-md disabled:cursor-not-allowed disabled:opacity-70 "/>
+                <p className='text-center text-slate-900 dark:text-primary'>Newsletter signup coming soon.</p>
                 </div>
               </div>
               </div>

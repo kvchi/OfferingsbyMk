@@ -19,15 +19,25 @@ export default function DarkMode() {
     }, [theme, element]);
             
   return (
-    <div className='relative mr-14 md:mr-0 lg:mr-0 flex items-center -top-5 '>
+    <div data-theme-control-region className='flex items-center'>
          {theme === "light" ? (
-                <MdOutlineLightMode
+                <button
+                    type='button'
+                    aria-label='Switch to dark mode'
+                    aria-pressed='false'
                     onClick={() => setTheme("dark")}
-                    className='w-8 h-8 p-2 cursor-pointer drop-shadow-sm transition-all duration-300 absolute right-0 z-10 bg-yellow-200 rounded-md border border-primary text-primary'/>
+                    className='w-8 h-8 p-2 drop-shadow-sm transition-all duration-300 bg-yellow-200 rounded-md border border-primary text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'>
+                    <MdOutlineLightMode aria-hidden='true' />
+                </button>
             ) : (
-                <MdLightMode
+                <button
+                    type='button'
+                    aria-label='Switch to light mode'
+                    aria-pressed='true'
                     onClick={() => setTheme("light")}
-                    className='w-8 h-8 p-2 bg-slate-600 rounded-md border border-slate-400 text-yell cursor-pointer drop-shadow-sm transition-all duration-300 absolute right-0 z-10'/>
+                    className='w-8 h-8 p-2 bg-slate-600 rounded-md border border-slate-400 text-yell drop-shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'>
+                    <MdLightMode aria-hidden='true' />
+                </button>
             )}
     
     

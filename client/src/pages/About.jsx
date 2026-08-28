@@ -35,11 +35,13 @@ export default function About() {
     <div className='flex items-center mb-8'>
       <input
         type='email'
+        disabled
+        aria-label='Newsletter signup unavailable, coming soon'
         placeholder='Enter your email'
         className='w-[300px] md:w-[400px] p-4 rounded-md text-primary outline-none'
       />
-      <button className='ml-4 p-4 bg-primary text-white rounded-md hover:bg-yellow-600'>
-        Subscribe
+      <button type='button' disabled className='ml-4 p-4 bg-primary text-white rounded-md disabled:cursor-not-allowed disabled:opacity-60'>
+        Subscribe — Coming Soon
       </button>
     </div>
   </aside>

@@ -39,7 +39,7 @@ const createOrderNumber = () => {
   return `SS-${date}-${randomBytes(5).toString('hex').toUpperCase()}`;
 };
 
-const createPaymentReference = () =>
+export const createPaymentReference = () =>
   `SSPAY-${randomUUID().replaceAll('-', '').toUpperCase()}`;
 
 const deliveryFromOrder = (order) => ({

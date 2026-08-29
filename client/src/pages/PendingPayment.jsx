@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getOrder } from '../api/checkout';
+import { initializeOrderPayment } from '../api/payments';
 import { DeliverySummary } from '../components/CheckoutReview';
 import { formatNaira } from '../utils/money';
+import { redirectToPaystack } from '../utils/paystackRedirect';
 
 const formatStatus = (value) => String(value || 'Unknown').toLowerCase().replaceAll('_', ' ');
 
@@ -18,10 +20,12 @@ const formatCreatedAt = (value) => {
 export default function PendingPayment() {
   const { orderId } = useParams();
   const [state, setState] = useState({ status: 'LOADING', order: null, error: null });
+  const [paymentState, setPaymentState] = useState({ status: 'IDLE', error: null });
   const headingRef = useRef(null);
   const errorRef = useRef(null);
   const activeRequestRef = useRef(null);
   const mountedRef = useRef(true);
+  const initializingRef = useRef(false);
 
   const loadOrder = useCallback(async () => {
     activeRequestRef.current?.abort();
@@ -56,6 +60,25 @@ export default function PendingPayment() {
   }, [state.status]);
 
   const { status, order, error } = state;
+  const initialize = async () => {
+    if (initializingRef.current || !order) return;
+    initializingRef.current = true;
+    setPaymentState({ status: 'INITIALIZING', error: null });
+    try {
+      const result = await initializeOrderPayment(order.id);
+      if (!mountedRef.current) return;
+      if (result.alreadyPaid) {
+        setState((current) => ({ ...current, order: { ...current.order, ...result.order } }));
+        setPaymentState({ status: 'IDLE', error: null });
+        return;
+      }
+      redirectToPaystack(result.authorizationUrl);
+    } catch (paymentError) {
+      if (mountedRef.current) setPaymentState({ status: 'ERROR', error: paymentError });
+    } finally {
+      initializingRef.current = false;
+    }
+  };
   return (
     <main className='container mx-auto min-h-[70vh] px-4 py-10'>
       <div className='mx-auto max-w-4xl'>
@@ -94,8 +117,10 @@ export default function PendingPayment() {
                   <dt>Payment status</dt><dd className='font-semibold capitalize'>{formatStatus(order.paymentStatus)}</dd>
                 </dl>
               </div>
-              <div id='payment-unavailable-description' className='mt-6 rounded-md border border-amber-500 bg-amber-50 p-4 text-amber-900 dark:bg-amber-950 dark:text-amber-100'>
-                Payment has not been completed. This order is pending and no charge has been made.
+              <div id='payment-test-description' className={`mt-6 rounded-md border p-4 ${order.paymentStatus === 'PAID' ? 'border-green-500 bg-green-50 text-green-900 dark:bg-green-950 dark:text-green-100' : 'border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100'}`}>
+                {order.paymentStatus === 'PAID'
+                  ? 'Payment has been securely confirmed by the server.'
+                  : 'Payment has not been completed. This order is pending and no charge has been made. Paystack is running in test mode only.'}
               </div>
             </section>
 
@@ -125,12 +150,20 @@ export default function PendingPayment() {
             </section>
 
             <div className='flex flex-wrap gap-3'>
-              <button type='button' disabled aria-describedby='payment-unavailable-description' title='Paystack integration is coming next' className='cursor-not-allowed rounded-md bg-slate-400 px-5 py-3 font-semibold text-white opacity-70'>
-                Pay with Paystack — Coming next
-              </button>
+              {order.paymentStatus !== 'PAID' && (
+                <button type='button' onClick={initialize} disabled={paymentState.status === 'INITIALIZING'} aria-describedby='payment-test-description' className='rounded-md bg-primary px-5 py-3 font-semibold text-white disabled:cursor-wait disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'>
+                  {paymentState.status === 'INITIALIZING' ? 'Opening secure Paystack checkout…' : 'Pay securely with Paystack (Test Mode)'}
+                </button>
+              )}
               <Link to='/shop' className='rounded-md border border-slate-400 px-5 py-3 text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:text-primary'>Return to Shop</Link>
               <Link to='/checkout' className='rounded-md px-4 py-3 text-slate-600 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-slate-300'>Start a new checkout</Link>
             </div>
+            {paymentState.status === 'ERROR' && (
+              <div role='alert' className='rounded-md border border-red-500 bg-red-50 p-4 text-red-900 dark:bg-red-950 dark:text-red-100'>
+                <p>{paymentState.error.message}</p>
+                <button type='button' onClick={initialize} className='mt-3 rounded-md border border-current px-4 py-2 font-semibold'>Retry payment</button>
+              </div>
+            )}
           </div>
         )}
       </div>

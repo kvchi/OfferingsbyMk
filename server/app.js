@@ -10,6 +10,8 @@ import { createCheckoutRouter } from "./routes/checkout.js";
 import { createOrdersRouter } from "./routes/orders.js";
 import { createAuthenticate } from "./middleware/authenticate.js";
 import { loadEnv } from "./config/env.js";
+import { createPaystackClient } from "./payments/paystack.js";
+import { createPaystackWebhookRouter } from "./routes/paystackWebhook.js";
 
 dotenv.config();
 
@@ -26,6 +28,9 @@ app.use(
   })
 );
 app.use(helmet());
+app.use('/api/payments/paystack/webhook', createPaystackWebhookRouter({
+  secretKey: env.PAYSTACK_SECRET_KEY,
+}));
 app.use(express.json());
 app.use(cookieParser(env.SECRET));
 
@@ -41,9 +46,17 @@ const authLimiter = rateLimit({
   message: { error: true, message: "Too many requests. Please try again later." },
 });
 const authenticate = createAuthenticate(env.SECRET);
+const paystackClient = createPaystackClient({
+  secretKey: env.PAYSTACK_SECRET_KEY,
+  timeoutMs: env.PAYSTACK_TIMEOUT_MS,
+});
 app.use("/api/auth", authLimiter, createAuthRouter({ secret: env.SECRET, authenticate }));
 app.use("/api/checkout", createCheckoutRouter({ authenticate }));
-app.use("/api/orders", createOrdersRouter({ authenticate }));
+app.use("/api/orders", createOrdersRouter({
+  authenticate,
+  paystackClient,
+  paystackCallbackUrl: env.PAYSTACK_CALLBACK_URL,
+}));
 
 app.use((error, req, res, next) => {
   if (error?.type === "entity.parse.failed") {

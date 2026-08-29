@@ -15,6 +15,7 @@ import AuthInitializer from './components/AuthInitializer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Checkout from './pages/Checkout';
 import PendingPayment from './pages/PendingPayment';
+import PaystackCallback from './pages/PaystackCallback';
 
 function PageOutlet() {
   return (
@@ -59,6 +60,10 @@ export const appRoutes = [
       {
         path: '/orders/:orderId/payment',
         element: <ProtectedRoute><PendingPayment /></ProtectedRoute>,
+      },
+      {
+        path: '/payments/paystack/callback',
+        element: <ProtectedRoute><PaystackCallback /></ProtectedRoute>,
       },
     ],
     errorElement: (

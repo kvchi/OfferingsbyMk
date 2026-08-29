@@ -13,6 +13,7 @@ import {
   serializeOrderDetail,
   serializeOrderSummary,
 } from '../commerce/orders.js';
+import { initializePayment, verifyPayment } from '../commerce/payments.js';
 
 const invalidRequest = (res, message = 'Invalid order request.') => res.status(400).json({
   error: true,
@@ -22,7 +23,7 @@ const invalidRequest = (res, message = 'Invalid order request.') => res.status(4
 
 const notFound = () => commerceError('ORDER_NOT_FOUND', 'Order not found.', 404);
 
-export function createOrdersRouter({ authenticate }) {
+export function createOrdersRouter({ authenticate, paystackClient, paystackCallbackUrl }) {
   const router = express.Router();
   router.use(authenticate);
 
@@ -76,6 +77,37 @@ export function createOrdersRouter({ authenticate }) {
       });
       if (!order) return sendCommerceError(res, notFound());
       return res.json({ error: false, order: serializeOrderDetail(order) });
+    } catch (error) {
+      return sendCommerceError(res, error);
+    }
+  });
+
+  router.post('/:orderId/payments/initialize', async (req, res) => {
+    const parsed = orderIdSchema.safeParse(req.params.orderId);
+    if (!parsed.success) return sendCommerceError(res, notFound());
+    try {
+      const result = await initializePayment({
+        authenticatedUserId: req.user.id,
+        orderId: parsed.data,
+        paystackClient,
+        callbackUrl: paystackCallbackUrl,
+      });
+      return res.json({ error: false, ...result });
+    } catch (error) {
+      return sendCommerceError(res, error);
+    }
+  });
+
+  router.post('/:orderId/payments/verify', async (req, res) => {
+    const parsed = orderIdSchema.safeParse(req.params.orderId);
+    if (!parsed.success) return sendCommerceError(res, notFound());
+    try {
+      const result = await verifyPayment({
+        authenticatedUserId: req.user.id,
+        orderId: parsed.data,
+        paystackClient,
+      });
+      return res.json({ error: false, ...result });
     } catch (error) {
       return sendCommerceError(res, error);
     }

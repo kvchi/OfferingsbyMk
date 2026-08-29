@@ -33,6 +33,8 @@ const testEnv = {
   DATABASE_URL: "file:./test.db",
   SECRET: "shopsphare-isolated-test-secret-32-characters",
   CORS_ORIGINS: "http://localhost:5174",
+  PAYSTACK_SECRET_KEY: ["sk", "test", "unit", "only", "not", "a", "credential"].join("_"),
+  PAYSTACK_CALLBACK_URL: "http://localhost:5174/payments/paystack/callback",
 };
 const prismaCli = resolve(serverRoot, "node_modules", "prisma", "build", "index.js");
 
@@ -52,7 +54,9 @@ try {
   if (run([prismaCli, "migrate", "deploy"])) {
     if (run(["--test", "test/auth.smoke.test.js"])) {
       if (run(["--test", "test/commerce.smoke.test.js"])) {
-        run(["--test", "test/checkout.smoke.test.js"]);
+        if (run(["--test", "test/checkout.smoke.test.js"])) {
+          run(["--test", "test/payment.smoke.test.js"]);
+        }
       }
     }
   }

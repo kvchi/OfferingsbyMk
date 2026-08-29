@@ -7,7 +7,11 @@ import cartReducer from '../store/cart';
 import PendingPayment from './PendingPayment';
 
 const checkoutApi = vi.hoisted(() => ({ getOrder: vi.fn() }));
+const paymentsApi = vi.hoisted(() => ({ initializeOrderPayment: vi.fn() }));
+const redirect = vi.hoisted(() => ({ redirectToPaystack: vi.fn() }));
 vi.mock('../api/checkout', () => checkoutApi);
+vi.mock('../api/payments', () => paymentsApi);
+vi.mock('../utils/paystackRedirect', () => redirect);
 
 const cartItems = [{ productId: 'featured-rosemary', quantity: 2 }];
 const ownedOrder = {
@@ -75,10 +79,45 @@ describe('pending-payment page', () => {
     expect(screen.getByText(/no charge has been made/i)).toBeInTheDocument();
     expect(screen.getByText(/NGN/)).toBeInTheDocument();
     expect(screen.getByText('Free')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /pay with paystack.*coming next/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /pay securely with paystack.*test mode/i })).toBeEnabled();
     expect(screen.getByRole('link', { name: 'Return to Shop' })).toHaveAttribute('href', '/shop');
     expect(screen.getByRole('link', { name: 'Start a new checkout' })).toHaveAttribute('href', '/checkout');
     expect(store.getState().cart.items).toEqual(cartItems);
+  });
+
+  it('initializes once, disables duplicate clicks and redirects only through the validated redirect helper', async () => {
+    checkoutApi.getOrder.mockResolvedValueOnce(ownedOrder);
+    let resolveInitialization;
+    paymentsApi.initializeOrderPayment.mockImplementationOnce(() => new Promise((resolve) => { resolveInitialization = resolve; }));
+    renderPending();
+    const button = await screen.findByRole('button', { name: /pay securely with paystack/i });
+    fireEvent.click(button);
+    fireEvent.click(button);
+    expect(button).toBeDisabled();
+    expect(paymentsApi.initializeOrderPayment).toHaveBeenCalledTimes(1);
+    resolveInitialization({ authorizationUrl: 'https://checkout.paystack.com/safe-code', reference: 'SSPAY-12345678', testMode: true });
+    await waitFor(() => expect(redirect.redirectToPaystack).toHaveBeenCalledWith('https://checkout.paystack.com/safe-code'));
+  });
+
+  it('retains the cart and supports retry after initialization failure', async () => {
+    checkoutApi.getOrder.mockResolvedValueOnce(ownedOrder);
+    paymentsApi.initializeOrderPayment
+      .mockRejectedValueOnce(new Error('Paystack is temporarily unavailable. Please try again.'))
+      .mockResolvedValueOnce({ authorizationUrl: 'https://checkout.paystack.com/retry-code', reference: 'SSPAY-12345678', testMode: true });
+    const { store } = renderPending();
+    fireEvent.click(await screen.findByRole('button', { name: /pay securely with paystack/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/temporarily unavailable/i);
+    expect(store.getState().cart.items).toEqual(cartItems);
+    fireEvent.click(screen.getByRole('button', { name: /retry payment/i }));
+    await waitFor(() => expect(redirect.redirectToPaystack).toHaveBeenCalledTimes(1));
+    expect(paymentsApi.initializeOrderPayment).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows a confirmed paid state without offering another payment action', async () => {
+    checkoutApi.getOrder.mockResolvedValueOnce({ ...ownedOrder, status: 'PAID', paymentStatus: 'PAID' });
+    renderPending();
+    expect(await screen.findByText(/securely confirmed by the server/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /pay securely/i })).not.toBeInTheDocument();
   });
 
   it('recovers from a network failure with an explicit retry', async () => {

@@ -110,8 +110,11 @@ model Payment {
   currency           String    @default("NGN")
   status             String
   failureMessage     String?
+  authorizationUrl   String?
+  providerTransactionId String? @unique
   initializedAt      DateTime?
   verifiedAt         DateTime?
+  paidAt             DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 

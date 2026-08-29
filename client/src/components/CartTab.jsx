@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { useSelector, useDispatch} from 'react-redux'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import CartItems from './CartItems';
 import {
@@ -17,6 +17,7 @@ export default function CartTab() {
   const formattedSubtotal = useSelector(selectFormattedCartSubtotal);
   const statusTab = useSelector(store => store.cart.statusTab);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const confirmationOpenRef = useRef(false);
   const confirmationFocusedRef = useRef(false);
   const confirmationRef = useRef(null);
@@ -187,6 +188,12 @@ export default function CartTab() {
     );
   }
 
+  const handleCheckout = () => {
+    if (cartLines.length === 0) return;
+    dispatch(toggleStatusTab());
+    navigate('/checkout');
+  };
+
   const isEmpty = cartLines.length === 0;
 
   return (
@@ -237,8 +244,8 @@ export default function CartTab() {
           <p className='px-5 py-2 text-right text-white'>Display subtotal: {formattedSubtotal}</p>
           <div className='grid grid-cols-2 min-h-[60px]'>
             <button ref={closeButtonRef} type='button' className='bg-black text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset' onClick={handleCloseCartTab}>CLOSE</button>
-            <button type='button' disabled aria-label='Checkout unavailable, coming soon' title='Checkout coming soon' className='bg-amber-500 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50'>
-              CHECKOUT — COMING SOON
+            <button type='button' disabled={isEmpty} aria-label={isEmpty ? 'Checkout unavailable, cart is empty' : 'Checkout'} title={isEmpty ? 'Add an item before checkout' : undefined} onClick={handleCheckout} className='bg-amber-500 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50'>
+              CHECKOUT
             </button>
           </div>
         </div>

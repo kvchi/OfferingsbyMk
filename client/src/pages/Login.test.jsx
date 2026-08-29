@@ -1,7 +1,7 @@
 import React from 'react';
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import authReducer from '../store/auth';
@@ -13,6 +13,11 @@ const authenticatedState = {
   isAuthenticated: true,
   isInitializing: false,
 };
+
+function CheckoutDestination() {
+  const location = useLocation();
+  return <div>Checkout destination{location.search}{location.hash}</div>;
+}
 
 const renderAuthenticatedLogin = (initialEntry) => {
   const store = configureStore({
@@ -27,6 +32,7 @@ const renderAuthenticatedLogin = (initialEntry) => {
           <Route path="/login" element={<Login />} />
           <Route path="/shop" element={<div>Shop destination</div>} />
           <Route path="/product/:id" element={<div>Preserved product destination</div>} />
+          <Route path="/checkout" element={<CheckoutDestination />} />
         </Routes>
       </MemoryRouter>
     </Provider>,
@@ -47,5 +53,14 @@ describe('Login navigation', () => {
     renderAuthenticatedLogin('/login');
 
     expect(await screen.findByText('Shop destination')).toBeInTheDocument();
+  });
+
+  it('returns to Checkout with the complete preserved destination', async () => {
+    renderAuthenticatedLogin({
+      pathname: '/login',
+      state: { from: { pathname: '/checkout', search: '?step=delivery', hash: '#address' } },
+    });
+
+    expect(await screen.findByText('Checkout destination?step=delivery#address')).toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import cartReducer, { MAX_CART_QUANTITY, toggleStatusTab } from '../store/cart';
@@ -22,6 +22,9 @@ function renderCart(items, statusTab = true) {
       <MemoryRouter>
         <button type='button' onClick={() => store.dispatch(toggleStatusTab())}>Open test cart</button>
         <CartTab />
+        <Routes>
+          <Route path='/checkout' element={<div>Checkout destination</div>} />
+        </Routes>
         <Toaster />
       </MemoryRouter>
     </Provider>
@@ -98,10 +101,17 @@ describe('Clear Cart UI', () => {
     expect(screen.getByRole('button', { name: /checkout unavailable/i })).toBeDisabled();
   });
 
-  it('keeps checkout disabled when the cart contains items', () => {
-    renderCart([rosemaryLine]);
+  it('enables Checkout, closes the drawer, navigates, and preserves cart contents', async () => {
+    const { store } = renderCart([rosemaryLine]);
+    const checkout = screen.getByRole('button', { name: 'Checkout' });
+    expect(checkout).toBeEnabled();
 
-    expect(screen.getByRole('button', { name: /checkout unavailable/i })).toBeDisabled();
+    fireEvent.click(checkout);
+
+    expect(await screen.findByText('Checkout destination')).toBeInTheDocument();
+    expect(store.getState().cart.statusTab).toBe(false);
+    expect(store.getState().cart.items).toEqual([rosemaryLine]);
+    expect(screen.queryByRole('dialog', { name: /shopping cart/i })).not.toBeInTheDocument();
   });
 });
 
@@ -186,16 +196,17 @@ describe('cart drawer accessibility and focus management', () => {
     const decrease = screen.getByRole('button', { name: /decrease rosemary quantity/i });
     const increase = screen.getByRole('button', { name: /increase rosemary quantity/i });
     const close = screen.getByRole('button', { name: 'CLOSE' });
+    const checkout = screen.getByRole('button', { name: 'Checkout' });
     const controls = Array.from(document.getElementById('shopping-cart-drawer').querySelectorAll('button:not(:disabled), a[href]'));
 
-    expect(controls).toEqual([clear, decrease, increase, close]);
+    expect(controls).toEqual([clear, decrease, increase, close, checkout]);
 
-    close.focus();
-    fireEvent.keyDown(close, { key: 'Tab' });
+    checkout.focus();
+    fireEvent.keyDown(checkout, { key: 'Tab' });
     expect(clear).toHaveFocus();
 
     fireEvent.keyDown(clear, { key: 'Tab', shiftKey: true });
-    expect(close).toHaveFocus();
+    expect(checkout).toHaveFocus();
   });
 
   it('locks body scrolling while open and restores the prior value on close', () => {

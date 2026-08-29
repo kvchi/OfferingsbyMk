@@ -14,6 +14,14 @@ import 'react-phone-number-input/style.css'
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { createSignupPayload } from '../utils/authPayload.mjs';
 
+export const getLoginDestination = (from) => {
+  const pathname = typeof from?.pathname === 'string' ? from.pathname : '';
+  if (!pathname.startsWith('/') || pathname.startsWith('//')) return '/shop';
+  const search = typeof from?.search === 'string' && from.search.startsWith('?') ? from.search : '';
+  const hash = typeof from?.hash === 'string' && from.hash.startsWith('#') ? from.hash : '';
+  return `${pathname}${search}${hash}`;
+};
+
 export default function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("");
@@ -26,7 +34,7 @@ export default function Login() {
 
     useEffect(() => {
       if (isAuthenticated) {
-        navigate(location.state?.from?.pathname || '/shop', { replace: true });
+        navigate(getLoginDestination(location.state?.from), { replace: true });
       }
     }, [isAuthenticated, navigate, location.state]);
 
@@ -87,7 +95,7 @@ export default function Login() {
         const data = await res.data;
         dispatch(setAuth({ token: data.token, user: data.user }));
         toast.success(data.message, {id: "1234"});
-        navigate(location.state?.from?.pathname || "/shop");
+        navigate(getLoginDestination(location.state?.from));
         } catch (error) {
           const message = error.response?.data?.message || "Invalid email or password";
           toast.error(message, {id: "1234"});

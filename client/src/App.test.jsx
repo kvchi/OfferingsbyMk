@@ -56,6 +56,11 @@ describe('application route and layout smoke tests', () => {
     expect(screen.getByRole('link', { name: /browse shop/i })).toHaveAttribute('href', '/shop');
   });
 
+  it.each(['/checkout', '/orders/order-owned-1/payment'])('protects %s and redirects logged-out visitors to Login', async (path) => {
+    renderAt(path);
+    expect(await screen.findByRole('heading', { name: /get exclusive access/i })).toBeInTheDocument();
+  });
+
   it('does not emit obsolete React Router 6 future-flag warnings', () => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

@@ -12,6 +12,9 @@ import ProductDetail from './pages/ProductDetail';
 import CartTab from './components/CartTab';
 import Login from './pages/Login';
 import AuthInitializer from './components/AuthInitializer';
+import ProtectedRoute from './components/ProtectedRoute';
+import Checkout from './pages/Checkout';
+import PendingPayment from './pages/PendingPayment';
 
 function PageOutlet() {
   return (
@@ -48,6 +51,14 @@ export const appRoutes = [
       {
         path: '/product/:id',
         element: <ProductDetail />,
+      },
+      {
+        path: '/checkout',
+        element: <ProtectedRoute><Checkout /></ProtectedRoute>,
+      },
+      {
+        path: '/orders/:orderId/payment',
+        element: <ProtectedRoute><PendingPayment /></ProtectedRoute>,
       },
     ],
     errorElement: (

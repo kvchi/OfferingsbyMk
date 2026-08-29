@@ -12,7 +12,7 @@ function LoginDestination() {
   return (
     <>
       <div>Login page</div>
-      <div data-testid="preserved-destination">{location.state?.from?.pathname}</div>
+      <div data-testid="preserved-destination">{`${location.state?.from?.pathname || ''}${location.state?.from?.search || ''}${location.state?.from?.hash || ''}`}</div>
     </>
   );
 }
@@ -21,7 +21,7 @@ const renderRoute = (auth) => {
   const store = configureStore({ reducer: { auth: authReducer }, preloadedState: { auth } });
   return render(
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/private']}>
+      <MemoryRouter initialEntries={['/private?step=review#total']}>
         <Routes>
           <Route path="/login" element={<LoginDestination />} />
           <Route path="/private" element={<ProtectedRoute><div>Private page</div></ProtectedRoute>} />
@@ -41,7 +41,7 @@ describe('ProtectedRoute', () => {
   it('redirects an unauthenticated visitor', () => {
     renderRoute({ user: null, token: null, isAuthenticated: false, isInitializing: false });
     expect(screen.getByText('Login page')).toBeInTheDocument();
-    expect(screen.getByTestId('preserved-destination')).toHaveTextContent('/private');
+    expect(screen.getByTestId('preserved-destination')).toHaveTextContent('/private?step=review#total');
   });
 
   it('renders protected content only for a confirmed session', () => {

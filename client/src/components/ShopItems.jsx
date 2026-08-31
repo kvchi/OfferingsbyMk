@@ -1,6 +1,7 @@
 import React from 'react'
 import { shopData } from '../data/shopData'
 import { Link } from 'react-router-dom'
+import ResponsiveImage from './ResponsiveImage'
 
 const categoryDestinations = {
   Candles: '/shop#candles',
@@ -18,9 +19,10 @@ export default function ShopItems() {
         {
             shopData.map((el) => (
                 <Link to={categoryDestinations[el.title]} key={el.id} className='hover:scale-105 duration-100 hover:shadow-lg dark:hover:shadow-2xl p-2 rounded-md cursor-pointer'>
-                     <img
-            src={el.image}
+                     <ResponsiveImage
+            image={el.image}
             alt={el.alt}
+            sizes="250px"
             className="w-[250px] h-[300px] object-cover rounded-md mx-auto"
           />
           <p className="text-xl text-center font-normal text-slate-600 dark:text-primary mt-2">

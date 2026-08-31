@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { TbMailForward } from 'react-icons/tb';
 import { light1 } from '../assets/images';
 import { requestPasswordReset } from '../api/auth';
+import ResponsiveImage from '../components/ResponsiveImage';
 
 const GENERIC_SUCCESS = 'If an eligible account exists for that email, password reset instructions have been sent.';
 
@@ -29,7 +30,7 @@ export default function ForgotPassword() {
   return (
     <main className="container mx-auto relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 overflow-hidden z-0 flex items-center justify-center">
-        <img src={light1} alt="" className="top-0 left-0 h-full w-full md:w-1/2 object-cover object-center filter blur-sm opacity-90" />
+        <ResponsiveImage image={light1} alt="" sizes="(max-width: 767px) 100vw, 50vw" loading="eager" fetchPriority="high" className="top-0 left-0 h-full w-full md:w-1/2 object-cover object-center filter blur-sm opacity-90" />
       </div>
       <section className="relative z-10 p-8 bg-secondary dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-auto" aria-labelledby="forgot-password-title">
         <h1 id="forgot-password-title" className="text-2xl font-bold text-center mb-3 text-primary">Forgot your password?</h1>

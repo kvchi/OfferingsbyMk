@@ -18,6 +18,7 @@ import Products from "../components/Products";
 
 import TopProducts from "../components/TopProducts";
 import { Link } from 'react-router-dom';
+import ResponsiveImage from '../components/ResponsiveImage';
 
 
 export default function Home() {
@@ -50,10 +51,16 @@ export default function Home() {
             data-aos-duration="600"
             className="h-[400px] w-[400px] object-cover mt-20 rounded-2xl"
           >
-            {headerBackground.map((item) => (
+            {headerBackground.map((item, index) => (
               <SwiperSlide key={item.id} className="relative">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <img src={item.image} alt={item.alt} />
+                  <ResponsiveImage
+                    image={item.image}
+                    alt={item.alt}
+                    sizes="(max-width: 767px) calc(100vw - 4rem), 400px"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'low'}
+                  />
                   <div className="absolute inset-0 opacity-50"></div>
                 </div>
               </SwiperSlide>
@@ -117,9 +124,10 @@ export default function Home() {
         <aside className="min-h-[550px] flex md:flex-row flex-col justify-center items-center gap-20">
           <div className=" gap-6 items-center px-4">
             <div data-aos="zoom-in">
-            <img 
-            src={incense} 
+            <ResponsiveImage
+            image={incense}
             alt="" 
+            sizes="(max-width: 639px) calc(100vw - 2rem), 400px"
             className="max-w-[400px] h-[350px] w-full mx-auto drop-shadow-[-10px_10px_12px_rgba(0,0,0,1)] object-cover"/>
             </div>
           </div>
@@ -164,7 +172,7 @@ export default function Home() {
       {/*Subscribe Section*/}
       <section className="container px-5 lg:mx-auto py-0 dark:bg-slate-400 relative">
               <div data-aos='zoom-in'>
-              <img src={scentedCandles} alt="candles" className="absolute left-0 top-0 w-full h-full object-cover" />
+              <ResponsiveImage image={scentedCandles} alt="" sizes="100vw" className="absolute left-0 top-0 w-full h-full object-cover" />
               <div className="container backdrop-blur-sm py-10">
                 <div className="space-y-6 max-w-xl mx-auto px-4 md:px-0">
                 <h1 
@@ -222,6 +230,10 @@ export default function Home() {
                   <div className="mb-4">
                   <img src={item.img}
                   alt=''
+                  width="80"
+                  height="80"
+                  loading="lazy"
+                  decoding="async"
                   className="rounded-full w-20 h-20"/> 
                   </div>
                   <div className="flex flex-col items-center gap-4">

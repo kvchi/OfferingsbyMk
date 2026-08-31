@@ -1,6 +1,7 @@
 import React from 'react'
 import { topProducts } from '../data/topProduct'
 import { FaStar } from 'react-icons/fa'
+import ResponsiveImage from './ResponsiveImage'
 
 export default function TopProducts() {
   return (
@@ -11,7 +12,7 @@ export default function TopProducts() {
           <div data-aos='zoom-in' key={el.id}
           className=" rounded-2xl bg-white dark:bg-gray-700 hover:bg-black/70 dark:hover:bg-secondary relative shadow-xl duration-high group max-w-[300px] py-4 px-10">
             <div className="h-[100px]"> 
-              <img src={el.image} alt={el.alt} 
+              <ResponsiveImage image={el.image} alt={el.alt} sizes="140px"
                className="w-[140px] block mx-auto transform -translate-y-20 group-hover:scale-105 duration-300 drop-shadow-md"
                />
             </div>

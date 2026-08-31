@@ -1,128 +1,71 @@
-import man from './man.jpg';
-import atmcard from './atmcard.jpg';
-import shopingCart from './shopingCart.jpg';
-import burning from './burning.jpg';
-import candle from './candle.jpg';
-import hand from './hand.jpg';
-import incense from './incense.jpg';
-import lavender from './lavender.jpg';
-import light1 from './light1.jpg';
-import rosemary from './rosemary.jpg';
-import scentedCandles from './scentedCandles.jpg';
-import tray from './tray.jpg';
-import lavenderbg from './lavenderbg.png';
-import rosemarybg from './rosemarybg.png';
-import candle2 from './candle2.png';
-import crystal from './crystal.png';
-import vase from './vase.png';
-import vase1 from './vase1.jpg';
-import sage2 from './sage2.jpg';
-import sage1 from './sage1.jpg';
-import sage3 from './sage3.jpg';
-import sage4 from './sage4.jpg';
-import sage5 from './sage5.jpg';
-import sage6 from './sage6.jpg';
-import lavenderOil from './lavenderOil.jpg';
-import roseOil from './roseOil.jpg';
-import sageBurning from './sageBurning.jpg';
-import candle3 from './candle3.jpg';
-import candle4 from './candle4.jpg';
-import candle5 from './candle5.jpg';
-import soy from './soy.jpg';
-import soy2 from './soy2.jpg';
-import womanSage from './womanSage.jpg';
-import buddha from './buddha.jpg';
-import oil from './oil.jpg';
-import oil1 from './oil1.jpg';
-import oil2 from './oil2.jpg';
-import drink from './drink.jpg';
-import herbs from './herbs.jpg';
-import herbs2 from './herbs2.jpg';
-import oregano from './oregano.jpg';
-import vase2 from './vase2.jpg';
-import vase3 from './vase3.jpg';
-import vase4 from './vase4.jpg';
-import homeDecor from './homeDecor.jpg';
-import homeDecor1 from './homeDecor1.jpg';
-import wellness from './wellness.jpg';
-import wellness1 from './wellness1.jpg';
-import wellness2 from './wellness2.jpg';
-import crystals from './crystals.jpg';
-import crystals2 from './crystals2.jpg';
-import crystals3 from './crystals3.jpg';
-import diffuser1 from './diffuser1.jpg';
-import difuser from './difuser.jpg';
-import mat from './mat.jpg';
-import mat1 from './mat1.jpg';
-import mat2 from './mat2.jpg';
-import roller from './roller.jpg';
-import roller1 from './roller1.jpg';
-import roller2 from './roller2.jpg';
-import roller3 from './roller3.jpg';
-import stick from './stick.jpg';
+const optimizedAssets = import.meta.glob('./optimized/*.{jpg,png,webp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 
-
-export {
-  man,
-  atmcard,
-  shopingCart,
-  burning,
-  candle,
-  hand,
-  incense,
-  lavender,
-  light1,
-  rosemary,
-  scentedCandles,
-  tray,
-  lavenderbg,
-  rosemarybg,
-  candle2,
-  crystal,
-  vase,
-  vase1,
-  sage2,
-  sage1,
-  sage3,
-  sage4,
-  sage5,
-  sage6,
-  lavenderOil,
-  roseOil,
-  sageBurning,
-  candle3,
-  candle4,
-  candle5,
-  soy,
-  soy2,
-  womanSage,
-  buddha,
-  oil,
-  oil1,
-  oil2,
-  drink,
-  herbs,
-  herbs2,
-  oregano,
-  vase2,
-  vase3,
-  vase4,
-  homeDecor,
-  homeDecor1,
-  wellness,
-  wellness1,
-  wellness2,
-  crystals,
-  crystals2,
-  crystals3,
-  diffuser1,
-  difuser,
-  mat,
-  mat1,
-  mat2,
-  stick,
-  roller,
-  roller1,
-  roller2,
-  roller3,
+const assetUrl = (filename) => {
+  const url = optimizedAssets[`./optimized/${filename}`];
+  if (!url) throw new Error(`Missing generated image asset: ${filename}`);
+  return url;
 };
+
+const responsiveImage = (source, widths, sourceWidth, sourceHeight, fallbackFormat = 'jpg') => {
+  const stem = source.replace(/\.[^.]+$/, '');
+  const largestWidth = widths.at(-1);
+  const height = Math.round((sourceHeight / sourceWidth) * largestWidth);
+  const candidates = (format) => widths
+    .map((width) => `${assetUrl(`${stem}-${width}.${format}`)} ${width}w`)
+    .join(', ');
+
+  return Object.freeze({
+    source: `src/assets/images/${source}`,
+    src: assetUrl(`${stem}-${largestWidth}.${fallbackFormat}`),
+    srcSet: candidates(fallbackFormat),
+    webpSrcSet: candidates('webp'),
+    width: largestWidth,
+    height,
+  });
+};
+
+export const atmcard = responsiveImage('atmcard.jpg', [480, 800], 5472, 3648);
+export const buddha = responsiveImage('buddha.jpg', [640, 1280], 6720, 4480);
+export const candle = responsiveImage('candle.jpg', [320, 640, 1280], 4409, 2940);
+export const candle2 = responsiveImage('candle2.png', [256, 512], 1333, 2000, 'png');
+export const candle3 = responsiveImage('candle3.jpg', [64, 320, 640], 8192, 8192);
+export const candle4 = responsiveImage('candle4.jpg', [320, 640], 5304, 7952);
+export const candle5 = responsiveImage('candle5.jpg', [320, 640, 1280], 6000, 4000);
+export const crystals = responsiveImage('crystals.jpg', [320, 640], 3648, 5472);
+export const difuser = responsiveImage('difuser.jpg', [320, 640], 3712, 5568);
+export const hand = responsiveImage('hand.jpg', [320, 640], 2597, 3895);
+export const homeDecor = responsiveImage('homeDecor.jpg', [320, 640], 2099, 2623);
+export const homeDecor1 = responsiveImage('homeDecor1.jpg', [320, 640], 2848, 4272);
+export const incense = responsiveImage('incense.jpg', [480, 800], 7448, 4968);
+export const lavender = responsiveImage('lavender.jpg', [320, 640], 1080, 1080);
+export const lavenderbg = responsiveImage('lavenderbg.png', [256, 500], 500, 500, 'png');
+export const lavenderOil = responsiveImage('lavenderOil.jpg', [320, 640, 1280], 4608, 3072);
+export const light1 = responsiveImage('light1.jpg', [640, 1280], 6000, 4000);
+export const man = responsiveImage('man.jpg', [480, 800], 4987, 3325);
+export const mat = responsiveImage('mat.jpg', [320, 640], 5617, 3744);
+export const oil = responsiveImage('oil.jpg', [320, 640], 3500, 3500);
+export const oil1 = responsiveImage('oil1.jpg', [320, 640], 4193, 2795);
+export const oil2 = responsiveImage('oil2.jpg', [320, 640], 4016, 5224);
+export const oregano = responsiveImage('oregano.jpg', [320, 640], 4000, 5031);
+export const roller = responsiveImage('roller.jpg', [320, 640], 3648, 5472);
+export const rosemary = responsiveImage('rosemary.jpg', [320, 640], 1080, 1080);
+export const rosemarybg = responsiveImage('rosemarybg.png', [256, 500], 500, 500, 'png');
+export const roseOil = responsiveImage('roseOil.jpg', [320, 640], 6568, 4379);
+export const sage1 = responsiveImage('sage1.jpg', [320, 640, 1280], 6720, 4480);
+export const sage2 = responsiveImage('sage2.jpg', [480, 800], 5368, 3020);
+export const sage3 = responsiveImage('sage3.jpg', [320, 640], 4250, 5312);
+export const sage4 = responsiveImage('sage4.jpg', [320, 640], 3712, 5568);
+export const scentedCandles = responsiveImage('scentedCandles.jpg', [640, 1280], 3000, 2000);
+export const shopingCart = responsiveImage('shopingCart.jpg', [480, 800], 4896, 3264);
+export const soy = responsiveImage('soy.jpg', [320, 640], 3987, 5980);
+export const stick = responsiveImage('stick.jpg', [320, 640], 3360, 5040);
+export const vase = responsiveImage('vase.png', [256, 500], 500, 500, 'png');
+export const vase2 = responsiveImage('vase2.jpg', [320, 640], 2878, 4316);
+export const vase3 = responsiveImage('vase3.jpg', [320, 640], 3000, 4000);
+export const vase4 = responsiveImage('vase4.jpg', [320, 640], 3378, 4831);
+export const wellness = responsiveImage('wellness.jpg', [640, 1280], 3584, 5376);
+export const womanSage = responsiveImage('womanSage.jpg', [480, 800], 6720, 4480);

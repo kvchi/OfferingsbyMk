@@ -3,7 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter } from 'react-router-dom';
-import App, { appRoutes } from './App';
+import App, { appRoutes, PageLoading } from './App';
 import store from './store';
 
 vi.mock('aos', () => ({ default: { init: vi.fn(), refresh: vi.fn() } }));
@@ -33,25 +33,25 @@ describe('application route and layout smoke tests', () => {
     ['/login', /Get Exclusive Access/i],
     ['/shop', /Your Shopping Destination/i],
     ['/product/featured-rosemary', /^Rosemary$/i],
-  ])('renders %s without a route error', (path, expectedContent) => {
+  ])('renders %s without a route error', async (path, expectedContent) => {
     renderAt(path);
-    expect(screen.getByText(expectedContent)).toBeInTheDocument();
+    expect(await screen.findByText(expectedContent)).toBeInTheDocument();
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 
-  it('provides recovery navigation for an invalid product ID', () => {
+  it('provides recovery navigation for an invalid product ID', async () => {
     renderAt('/product/not-a-product');
-    expect(screen.getByRole('heading', { name: /product not found/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /product not found/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /browse shop/i })).toHaveAttribute('href', '/shop');
     expect(screen.getByRole('link', { name: /go to home/i })).toHaveAttribute('href', '/');
   });
 
-  it('provides recovery navigation for an unmatched route', () => {
+  it('provides recovery navigation for an unmatched route', async () => {
     renderAt('/route-that-does-not-exist');
     const header = screen.getByRole('banner');
     expect(header.nextElementSibling).toHaveAttribute('data-header-spacer');
     expect(header.nextElementSibling).toHaveClass('h-16', 'md:h-20');
-    expect(screen.getByRole('heading', { name: /page not found/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /page not found/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /go to home/i })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: /browse shop/i })).toHaveAttribute('href', '/shop');
   });
@@ -75,6 +75,11 @@ describe('application route and layout smoke tests', () => {
 
     expect(warning.mock.calls.flat().join(' ')).not.toMatch(/React Router Future Flag Warning|v7_/i);
     warning.mockRestore();
+  });
+
+  it('provides an accessible route-loading fallback', () => {
+    render(<PageLoading />);
+    expect(screen.getByRole('status')).toHaveTextContent('Loading page...');
   });
 });
 

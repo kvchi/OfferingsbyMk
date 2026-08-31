@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { getProductById } from '../data/productCatalog';
 import { addToCart } from '../store/cart';
 import { formatNaira } from '../utils/money';
+import ResponsiveImage from './ResponsiveImage';
 
 export default function ProductCard({ product: sourceProduct, featured = false }) {
   const dispatch = useDispatch();
@@ -25,9 +26,10 @@ export default function ProductCard({ product: sourceProduct, featured = false }
         ? 'hover:scale-105 duration-300'
         : 'hover:scale-105 duration-100 hover:shadow-lg dark:hover:shadow-2xl p-2 rounded-md'}
     >
-      <img
-        src={product.image}
+      <ResponsiveImage
+        image={product.image}
         alt={product.imageAlt ?? product.title}
+        sizes={featured ? '180px' : '250px'}
         className={featured
           ? 'w-[180px] h-[220px] object-cover rounded-md'
           : 'w-[250px] h-[300px] object-cover rounded-md mx-auto'}

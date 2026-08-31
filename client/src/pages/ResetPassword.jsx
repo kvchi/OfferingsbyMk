@@ -7,6 +7,7 @@ import { RiLockPasswordLine } from 'react-icons/ri';
 import { light1 } from '../assets/images';
 import { resetPassword } from '../api/auth';
 import { logout } from '../store/auth';
+import ResponsiveImage from '../components/ResponsiveImage';
 
 const RESET_TOKEN_PATTERN = /^[a-f0-9]{64}$/;
 const INVALID_RESET_MESSAGE = 'This password reset link is invalid or has expired.';
@@ -128,7 +129,7 @@ export default function ResetPassword() {
   return (
     <main className="container mx-auto relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 overflow-hidden z-0 flex items-center justify-center">
-        <img src={light1} alt="" className="top-0 left-0 h-full w-full md:w-1/2 object-cover object-center filter blur-sm opacity-90" />
+        <ResponsiveImage image={light1} alt="" sizes="(max-width: 767px) 100vw, 50vw" loading="eager" fetchPriority="high" className="top-0 left-0 h-full w-full md:w-1/2 object-cover object-center filter blur-sm opacity-90" />
       </div>
       <section className="relative z-10 p-8 bg-secondary dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-auto" aria-labelledby="reset-password-title">
         <h1 id="reset-password-title" className="text-2xl font-bold text-center mb-6 text-primary">Choose a new password</h1>

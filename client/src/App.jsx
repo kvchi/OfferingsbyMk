@@ -1,25 +1,35 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import Home from './pages/Home';
-import About from './pages/About';
 import { Footer, Header } from './components';
-import Error from './pages/Error';
-import Shop from './pages/Shop';
-
-import ProductDetail from './pages/ProductDetail';
 import CartTab from './components/CartTab';
-import Login from './pages/Login';
 import AuthInitializer from './components/AuthInitializer';
 import ProtectedRoute from './components/ProtectedRoute';
-import Checkout from './pages/Checkout';
-import PaystackCallback from './pages/PaystackCallback';
-import MyOrders from './pages/MyOrders';
-import OrderDetail from './pages/OrderDetail';
-import OrderReceipt from './pages/OrderReceipt';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
+
+const About = lazy(() => import('./pages/About'));
+const ErrorPage = lazy(() => import('./pages/Error'));
+const Shop = lazy(() => import('./pages/Shop'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Login = lazy(() => import('./pages/Login'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const PaystackCallback = lazy(() => import('./pages/PaystackCallback'));
+const MyOrders = lazy(() => import('./pages/MyOrders'));
+const OrderDetail = lazy(() => import('./pages/OrderDetail'));
+const OrderReceipt = lazy(() => import('./pages/OrderReceipt'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+
+export function PageLoading() {
+  return (
+    <main role="status" aria-live="polite" className="container mx-auto min-h-[50vh] flex items-center justify-center text-primary">
+      Loading page...
+    </main>
+  );
+}
+
+const loadPage = (page) => <Suspense fallback={<PageLoading />}>{page}</Suspense>;
 
 function PageOutlet() {
   return (
@@ -43,57 +53,57 @@ export const appRoutes = [
       },
       {
         path: '/about',
-        element: <About />,
+        element: loadPage(<About />),
       },
       {
         path: '/login',
-        element: <Login />,
+        element: loadPage(<Login />),
       },
       {
         path: '/forgot-password',
-        element: <ForgotPassword />,
+        element: loadPage(<ForgotPassword />),
       },
       {
         path: '/reset-password',
-        element: <ResetPassword />,
+        element: loadPage(<ResetPassword />),
       },
       {
         path: '/shop',
-        element: <Shop />,
+        element: loadPage(<Shop />),
       },
       {
         path: '/product/:id',
-        element: <ProductDetail />,
+        element: loadPage(<ProductDetail />),
       },
       {
         path: '/checkout',
-        element: <ProtectedRoute><Checkout /></ProtectedRoute>,
+        element: <ProtectedRoute>{loadPage(<Checkout />)}</ProtectedRoute>,
       },
       {
         path: '/orders',
-        element: <ProtectedRoute><MyOrders /></ProtectedRoute>,
+        element: <ProtectedRoute>{loadPage(<MyOrders />)}</ProtectedRoute>,
       },
       {
         path: '/orders/:orderId',
-        element: <ProtectedRoute><OrderDetail /></ProtectedRoute>,
+        element: <ProtectedRoute>{loadPage(<OrderDetail />)}</ProtectedRoute>,
       },
       {
         path: '/orders/:orderId/receipt',
-        element: <ProtectedRoute><OrderReceipt /></ProtectedRoute>,
+        element: <ProtectedRoute>{loadPage(<OrderReceipt />)}</ProtectedRoute>,
       },
       {
         path: '/orders/:orderId/payment',
-        element: <ProtectedRoute><OrderDetail /></ProtectedRoute>,
+        element: <ProtectedRoute>{loadPage(<OrderDetail />)}</ProtectedRoute>,
       },
       {
         path: '/payments/paystack/callback',
-        element: <ProtectedRoute><PaystackCallback /></ProtectedRoute>,
+        element: <ProtectedRoute>{loadPage(<PaystackCallback />)}</ProtectedRoute>,
       },
     ],
     errorElement: (
       <>
         <Header />
-        <Error />
+        {loadPage(<ErrorPage />)}
         <Footer />
       </>
     ),

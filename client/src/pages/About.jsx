@@ -1,12 +1,13 @@
 import React from 'react'
 import { candle, scentedCandles } from '../assets/images'
 import { BsEyeglasses } from 'react-icons/bs'
+import ResponsiveImage from '../components/ResponsiveImage'
 
 export default function About() {
   return (
     <main>
        <section className="container mx-auto  dark:bg-slate-800 relative py-20"> 
-              <img src={candle} alt="candles" className="absolute left-0 top-0 w-full h-full object-cover opacity-45 dark:opacity-10" />
+              <ResponsiveImage image={candle} alt="" sizes="100vw" loading="eager" fetchPriority="high" className="absolute left-0 top-0 w-full h-full object-cover opacity-45 dark:opacity-10" />
               <div className="flex flex-col justify-center items-center">
                 <h1 className="z-10 text-4xl text-center text-slate-600 font-bold dark:text-primary underline underline-offset-2">About us</h1>
                 <p className='md:text-xl text-lg text-slate-600 max-w-2xl z-10 mt-4 ml-2 font-semibold dark:text-primary'>Welcome to OfferingsbyMK, your go-to destination for products that connect with your soul and spirit.From our carefully curated scented candles to soothing herbs like rosemary and lavender, we are dedicated to enhancing your well-being with items crafted with love and intention.  </p>
@@ -19,9 +20,9 @@ export default function About() {
               <h1 className='text-3xl text-slate-600 dark:text-primary underline underline-offset-4 mt-[-16px]'>Our Vision</h1>
           </div>
           <aside className='flex flex-col md:flex-row justify-center mt-10'>
-              <img src={scentedCandles} alt="" className='w-full sm:w-[200px] md:w-[500px] object-cover'/>
+              <ResponsiveImage image={scentedCandles} alt="" sizes="(max-width: 639px) 100vw, (max-width: 767px) 200px, 500px" className='w-full sm:w-[200px] md:w-[500px] object-cover'/>
               <div className='w-full sm:w-[450px] md:w-[700px] dark:bg-slate-700 bg-secondary relative'>
-                <img src={scentedCandles} alt=""  className='opacity-30 absolute inset-0 w-full h-full'/>
+                <ResponsiveImage image={scentedCandles} alt="" sizes="(max-width: 639px) 100vw, 700px" className='opacity-30 absolute inset-0 w-full h-full object-cover'/>
                 <p className='text-center md:mt-20 md:max-w-lg mx-auto md:border-[2px] border-white rounded-lg p-4 md:text-xl text-slate-600 dark:text-primary font-semibold relative'>Our vision is to enrich lives with quality products that foster tranquility and well-being. We aim to be the leading source of unique, soul-soothing items that enhance everyday moments and inspire inner peace.</p>
               </div>
           </aside>

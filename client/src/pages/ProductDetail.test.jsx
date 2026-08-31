@@ -39,7 +39,16 @@ describe('canonical product detail route', () => {
     renderProductDetail(product.id);
 
     expect(screen.getByRole('heading', { name: product.title, level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: product.imageAlt })).toHaveAttribute('src', product.image);
+    const image = screen.getByRole('img', { name: product.imageAlt });
+    expect(image).toHaveAttribute('src', product.image.src);
+    expect(image).toHaveAttribute('srcset', product.image.srcSet);
+    expect(image).toHaveAttribute('sizes', '300px');
+    expect(image).toHaveAttribute('width', String(product.image.width));
+    expect(image).toHaveAttribute('height', String(product.image.height));
+    expect(image).toHaveAttribute('loading', 'eager');
+    expect(image).toHaveAttribute('fetchpriority', 'high');
+    expect(image.closest('picture').querySelector('source[type="image/webp"]'))
+      .toHaveAttribute('srcset', product.image.webpSrcSet);
     expect(screen.getAllByText(product.category).length).toBeGreaterThan(0);
     expect(screen.getByText(formatNaira(product.priceKobo))).toBeInTheDocument();
     expect(screen.getByRole('link', { name: `Return to ${product.category}` }))

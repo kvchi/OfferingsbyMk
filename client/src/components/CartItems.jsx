@@ -2,6 +2,7 @@ import React from 'react'
 import { useDispatch } from 'react-redux';
 import { changeQuantity, MAX_CART_QUANTITY } from '../store/cart';
 import { formatNaira } from '../utils/money';
+import ResponsiveImage from './ResponsiveImage';
 
 export default function CartItems(props) {
     const {productId, quantity, product, lineTotalKobo} = props.data;
@@ -22,7 +23,7 @@ export default function CartItems(props) {
 
   return (
     <div className='flex justify-between items-center bg-slate-600 text-white p-2 border-b-2 border-slate-700 gap-5 rounded-md'>
-        <img src={product.image} alt={product.title} className='w-12'/>
+        <ResponsiveImage image={product.image} alt={product.title} sizes='48px' className='h-12 w-12 object-cover'/>
         <h3>{product.title}</h3>
         <p>{formatNaira(lineTotalKobo)}</p>
         <div className='w-20 flex justify-between'>

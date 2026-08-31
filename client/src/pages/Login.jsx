@@ -13,6 +13,7 @@ import flags from 'react-phone-number-input/flags'
 import 'react-phone-number-input/style.css'
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { createSignupPayload } from '../utils/authPayload.mjs';
+import ResponsiveImage from '../components/ResponsiveImage';
 
 export const getLoginDestination = (from) => {
   const pathname = typeof from?.pathname === 'string' ? from.pathname : '';
@@ -105,7 +106,7 @@ export default function Login() {
   return (
     <main className='container mx-auto relative  min-h-screen flex items-center justify-center'>
             <div className='absolute inset-0 overflow-hidden z-0 flex items-center justify-center'>
-            <img src={light1} alt="" className=" top-0 left-0 h-full w-full md:w-1/2 object-cover object-center filter blur-sm opacity-90" />
+            <ResponsiveImage image={light1} alt="" sizes="(max-width: 767px) 100vw, 50vw" loading="eager" fetchPriority="high" className="top-0 left-0 h-full w-full md:w-1/2 object-cover object-center filter blur-sm opacity-90" />
             </div>
             <div className="relative z-10 p-8 bg-secondary dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
         {

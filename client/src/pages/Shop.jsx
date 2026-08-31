@@ -10,6 +10,7 @@ import Oil from '../components/Oil';
 import Herbs from '../components/Herbs';
 import HomeDecor from '../components/HomeDecor';
 import Wellness from '../components/Wellness';
+import ResponsiveImage from '../components/ResponsiveImage';
 
 
 
@@ -42,10 +43,16 @@ export default function Shop() {
             
             className="h-96 w-full mt-20 rounded-2xl"
           >
-            {shopData.map((item) => (
+            {shopData.map((item, index) => (
               <SwiperSlide key={item.id} className="relative">
                 <div className="absolute inset-0 flex items-center justify-center ">
-                  <img src={item.image} alt={item.alt} />
+                  <ResponsiveImage
+                    image={item.image}
+                    alt={item.alt}
+                    sizes="(max-width: 767px) calc(100vw - 5rem), 1200px"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'low'}
+                  />
                 </div>
               </SwiperSlide>
             ))}

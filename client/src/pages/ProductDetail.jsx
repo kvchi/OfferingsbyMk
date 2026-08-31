@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { addToCart, MAX_CART_QUANTITY } from '../store/cart';
 import {toast} from 'react-hot-toast';
 import { formatNaira } from '../utils/money';
+import ResponsiveImage from '../components/ResponsiveImage';
 
 export const PRODUCT_DESCRIPTION_FALLBACK = 'Additional product details are coming soon.';
 
@@ -50,7 +51,14 @@ export default function ProductDetail() {
   return (
     <main className='container mx-auto flex md:flex-row-reverse flex-col-reverse items-center justify-center py-20 px-4 gap-8 bg-slate-100 dark:bg-slate-800'>
         <div>
-        <img src={product.image} alt={product.imageAlt} className="w-[300px] h-[400px] object-cover rounded-md"/>
+        <ResponsiveImage
+          image={product.image}
+          alt={product.imageAlt}
+          sizes="300px"
+          loading="eager"
+          fetchPriority="high"
+          className="w-[300px] h-[400px] object-cover rounded-md"
+        />
         <h1 className='text-3xl font-bold text-slate-600 dark:text-primary text-center'>{product.title}</h1>
         <p className='text-base font-medium text-slate-600 dark:text-primary text-center'>{product.category}</p>
         <p className='text-lg font-medium text-slate-600 dark:text-primary text-center'>{formatNaira(product.priceKobo)}</p>

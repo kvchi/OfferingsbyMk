@@ -19,6 +19,10 @@ export function createAuthenticate(secret) {
 
       const user = await prisma.user.findUnique({ where: { id: payload.sub } });
       if (!user || user.status !== "ACTIVE") return unauthorized(res);
+      const tokenAuthVersion = payload.av === undefined ? 0 : payload.av;
+      if (!Number.isInteger(tokenAuthVersion) || tokenAuthVersion !== user.authVersion) {
+        return unauthorized(res);
+      }
 
       req.user = user;
       next();

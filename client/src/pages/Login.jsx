@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuth } from '../store/auth'
 import { light1 } from '../assets/images'
@@ -135,6 +135,9 @@ export default function Login() {
             className="py-2 px-6 md:px-8 bg-primary text-white rounded-md w-max hover:bg-yellow-600">
             Login
           </button>
+          <p className="p-1 text-center text-dark/60 dark:text-secondary">
+            <Link to="/forgot-password" className="underline">Forgot your password?</Link>
+          </p>
           <p onClick={() => setShowLogin(!showLogin)} className="cursor-pointer p-1 text-center text-dark/60 underline dark:text-secondary">Don&apos;t have an account yet? Signup</p>
         </form>
         :

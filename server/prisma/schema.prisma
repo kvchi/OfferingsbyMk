@@ -16,9 +16,26 @@ model User {
   phone        String?
   status       String   @default("ACTIVE")
   role         String   @default("CUSTOMER")
+  authVersion  Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   orders       Order[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tokenHash     String    @unique
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  invalidatedAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@index([userId, consumedAt, invalidatedAt])
 }
 
 model Category {

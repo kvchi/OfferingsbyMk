@@ -4,6 +4,12 @@ import jwt from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../config/prisma.js";
+import {
+  consumePasswordReset,
+  InvalidResetTokenError,
+  issuePasswordReset,
+  RESET_TOKEN_PATTERN,
+} from "../auth/passwordReset.js";
 
 const emailSchema = z.string().trim().email().max(254).transform((value) => value.toLowerCase());
 const phoneSchema = z
@@ -27,10 +33,37 @@ const loginSchema = z.object({
   password: z.string().min(1).max(72),
 }).strict();
 
+const forgotPasswordSchema = z.object({ email: emailSchema }).strict();
+const passwordSchema = z.string().min(8).max(72);
+const resetPasswordSchema = z.object({
+  token: z.string().regex(RESET_TOKEN_PATTERN),
+  newPassword: passwordSchema,
+  confirmPassword: z.string().max(72),
+}).strict();
+
+const forgotResponse = Object.freeze({
+  error: false,
+  message: "If an eligible account exists for that email, password reset instructions have been sent.",
+});
+const invalidResetResponse = (res) => res.status(400).json({
+  error: true,
+  code: "INVALID_RESET_TOKEN",
+  message: "This password reset link is invalid or has expired.",
+});
+
 const invalidInput = (res) =>
   res.status(400).json({ error: true, message: "Invalid request data." });
 
-export function createAuthRouter({ secret, authenticate }) {
+export function createAuthRouter({
+  secret,
+  authenticate,
+  emailService,
+  appBaseUrl,
+  passwordResetTtlMinutes,
+  forgotPasswordIpLimiter,
+  forgotPasswordEmailLimiter,
+  resetPasswordLimiter,
+}) {
   const router = express.Router();
 
 router.post("/signup", async (req, res) => {
@@ -85,7 +118,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { email: user.email, role: user.role },
+      { email: user.email, role: user.role, av: user.authVersion },
       secret,
       { algorithm: "HS256", expiresIn: "7d", subject: user.id }
     );
@@ -110,6 +143,59 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post(
+  "/forgot-password",
+  forgotPasswordIpLimiter,
+  forgotPasswordEmailLimiter,
+  async (req, res) => {
+    const parsed = forgotPasswordSchema.safeParse(req.body);
+    if (!parsed.success) return invalidInput(res);
+    try {
+      await issuePasswordReset({
+        email: parsed.data.email,
+        emailService,
+        appBaseUrl,
+        ttlMinutes: passwordResetTtlMinutes,
+      });
+    } catch {
+      // The public response must not reveal account or delivery state.
+    }
+    return res.status(202).json(forgotResponse);
+  },
+);
+
+router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
+  const tokenLooksValid = typeof req.body?.token === "string" && RESET_TOKEN_PATTERN.test(req.body.token);
+  if (!tokenLooksValid) return invalidResetResponse(res);
+
+  const parsed = resetPasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: true,
+      code: "INVALID_PASSWORD",
+      message: "Password must contain between 8 and 72 characters.",
+    });
+  }
+  if (parsed.data.newPassword !== parsed.data.confirmPassword) {
+    return res.status(400).json({
+      error: true,
+      code: "PASSWORD_MISMATCH",
+      message: "Password confirmation does not match.",
+    });
+  }
+
+  try {
+    await consumePasswordReset({ token: parsed.data.token, newPassword: parsed.data.newPassword });
+    return res.json({
+      error: false,
+      message: "Password reset successful. Please log in with your new password.",
+    });
+  } catch (error) {
+    if (error instanceof InvalidResetTokenError) return invalidResetResponse(res);
+    return res.status(500).json({ error: true, message: "Unable to reset password. Please try again." });
+  }
+});
+
 router.get("/me", authenticate, (req, res) => {
   const { id, firstName, lastName, email, phone, status, role, createdAt, updatedAt } = req.user;
   return res.json({
@@ -120,3 +206,5 @@ router.get("/me", authenticate, (req, res) => {
 
   return router;
 }
+
+export { emailSchema, passwordSchema };

@@ -12,6 +12,8 @@ import { createAuthenticate } from "./middleware/authenticate.js";
 import { loadEnv } from "./config/env.js";
 import { createPaystackClient } from "./payments/paystack.js";
 import { createPaystackWebhookRouter } from "./routes/paystackWebhook.js";
+import { createEmailService } from "./email/emailService.js";
+import { createEmailRateLimiter } from "./auth/emailRateLimiter.js";
 
 dotenv.config();
 
@@ -46,11 +48,36 @@ const authLimiter = rateLimit({
   message: { error: true, message: "Too many requests. Please try again later." },
 });
 const authenticate = createAuthenticate(env.SECRET);
+export const emailService = createEmailService(env);
+const forgotPasswordIpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: true, message: "Too many password reset requests. Please try again later." },
+});
+const forgotPasswordEmailLimiter = createEmailRateLimiter();
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: true, message: "Too many password reset attempts. Please try again later." },
+});
 const paystackClient = createPaystackClient({
   secretKey: env.PAYSTACK_SECRET_KEY,
   timeoutMs: env.PAYSTACK_TIMEOUT_MS,
 });
-app.use("/api/auth", authLimiter, createAuthRouter({ secret: env.SECRET, authenticate }));
+app.use("/api/auth", authLimiter, createAuthRouter({
+  secret: env.SECRET,
+  authenticate,
+  emailService,
+  appBaseUrl: env.APP_BASE_URL,
+  passwordResetTtlMinutes: env.PASSWORD_RESET_TTL_MINUTES,
+  forgotPasswordIpLimiter,
+  forgotPasswordEmailLimiter,
+  resetPasswordLimiter,
+}));
 app.use("/api/checkout", createCheckoutRouter({ authenticate }));
 app.use("/api/orders", createOrdersRouter({
   authenticate,

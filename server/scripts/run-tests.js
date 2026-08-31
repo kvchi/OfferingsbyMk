@@ -35,6 +35,9 @@ const testEnv = {
   CORS_ORIGINS: "http://localhost:5174",
   PAYSTACK_SECRET_KEY: ["sk", "test", "unit", "only", "not", "a", "credential"].join("_"),
   PAYSTACK_CALLBACK_URL: "http://localhost:5174/payments/paystack/callback",
+  APP_BASE_URL: "http://localhost:5174",
+  PASSWORD_RESET_TTL_MINUTES: "30",
+  EMAIL_DELIVERY_MODE: "test",
 };
 const prismaCli = resolve(serverRoot, "node_modules", "prisma", "build", "index.js");
 
@@ -53,9 +56,11 @@ try {
   for (const target of testArtifacts) rmSync(target, { force: true });
   if (run([prismaCli, "migrate", "deploy"])) {
     if (run(["--test", "test/auth.smoke.test.js"])) {
-      if (run(["--test", "test/commerce.smoke.test.js"])) {
-        if (run(["--test", "test/checkout.smoke.test.js"])) {
-          run(["--test", "test/payment.smoke.test.js"]);
+      if (run(["--test", "test/passwordReset.smoke.test.js"])) {
+        if (run(["--test", "test/commerce.smoke.test.js"])) {
+          if (run(["--test", "test/checkout.smoke.test.js"])) {
+            run(["--test", "test/payment.smoke.test.js"]);
+          }
         }
       }
     }

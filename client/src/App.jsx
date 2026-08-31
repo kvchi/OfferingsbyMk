@@ -18,6 +18,8 @@ import PaystackCallback from './pages/PaystackCallback';
 import MyOrders from './pages/MyOrders';
 import OrderDetail from './pages/OrderDetail';
 import OrderReceipt from './pages/OrderReceipt';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function PageOutlet() {
   return (
@@ -46,6 +48,14 @@ export const appRoutes = [
       {
         path: '/login',
         element: <Login />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPassword />,
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPassword />,
       },
       {
         path: '/shop',

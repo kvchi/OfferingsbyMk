@@ -35,7 +35,7 @@ function renderCallback({ strict = false, store } = {}) {
       <MemoryRouter initialEntries={[`/payments/paystack/callback?orderId=${orderId}&reference=browser-value-is-not-trusted`]}>
         <Routes>
           <Route path='/payments/paystack/callback' element={<PaystackCallback />} />
-          <Route path='/orders/:orderId/payment' element={<div>Order destination</div>} />
+          <Route path='/orders/:orderId' element={<div>Order destination</div>} />
           <Route path='/shop' element={<div>Shop destination</div>} />
         </Routes>
       </MemoryRouter>
@@ -82,7 +82,7 @@ describe('Paystack callback verification', () => {
     expect(alert).toHaveTextContent(/cart has been kept/i);
     expect(store.getState().cart.items).toEqual(cartItems);
     expect(screen.getByRole('button', { name: /retry verification/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /return to order/i })).toHaveAttribute('href', `/orders/${orderId}/payment`);
+    expect(screen.getByRole('link', { name: /return to order/i })).toHaveAttribute('href', `/orders/${orderId}`);
   });
 
   it('handles refresh and duplicate callbacks without a second cart-clear operation', async () => {

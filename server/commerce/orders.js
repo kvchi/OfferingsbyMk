@@ -22,7 +22,14 @@ const orderInclude = {
     orderBy: { productIdSnapshot: 'asc' },
   },
   payments: {
-    select: { reference: true, status: true, createdAt: true },
+    select: {
+      reference: true,
+      provider: true,
+      status: true,
+      initializedAt: true,
+      paidAt: true,
+      createdAt: true,
+    },
     orderBy: { createdAt: 'asc' },
   },
 };
@@ -61,6 +68,47 @@ const linesFromOrder = (order) => order.items.map((item) => ({
   lineTotalKobo: toJsonKobo(item.lineTotalKobo, 'lineTotalKobo'),
 }));
 
+const preferredPayment = (payments = []) => {
+  const newestFirst = [...payments].reverse();
+  return newestFirst.find(({ status }) => status === PAYMENT_STATUS.PAID)
+    ?? newestFirst.find(({ status }) => [PAYMENT_STATUS.INITIALIZED, PAYMENT_STATUS.PENDING].includes(status))
+    ?? newestFirst.find(({ status }) => status === PAYMENT_STATUS.FAILED)
+    ?? newestFirst.find(({ status }) => status === PAYMENT_STATUS.UNPAID)
+    ?? null;
+};
+
+const safePayment = (payment) => payment ? {
+  provider: payment.provider,
+  status: payment.status,
+  initializedAt: payment.initializedAt?.toISOString() ?? null,
+  paidAt: payment.paidAt?.toISOString() ?? null,
+} : null;
+
+export function customerOrderActions(order) {
+  const payment = preferredPayment(order.payments);
+  const paidPayments = order.payments.filter(({ status }) => status === PAYMENT_STATUS.PAID);
+  const receipt = order.status === ORDER_STATUS.PAID
+    && order.paymentStatus === PAYMENT_STATUS.PAID
+    && paidPayments.length === 1
+    && paidPayments[0].paidAt instanceof Date;
+
+  let paymentAction = 'NONE';
+  if (order.status === ORDER_STATUS.PENDING) {
+    if (order.paymentStatus === PAYMENT_STATUS.UNPAID
+      && payment?.status === PAYMENT_STATUS.UNPAID) {
+      paymentAction = 'INITIALIZE';
+    } else if (order.paymentStatus === PAYMENT_STATUS.FAILED
+      && payment?.status === PAYMENT_STATUS.FAILED) {
+      paymentAction = 'INITIALIZE';
+    } else if ([PAYMENT_STATUS.INITIALIZED, PAYMENT_STATUS.PENDING].includes(order.paymentStatus)
+      && payment?.status === order.paymentStatus) {
+      paymentAction = 'VERIFY';
+    }
+  }
+
+  return { payment: paymentAction, receipt };
+}
+
 export function ownedOrderWhere(authenticatedUserId, orderId) {
   return {
     id: assertIdentifier(orderId, 'orderId'),
@@ -76,6 +124,7 @@ export function findOwnedOrder({ authenticatedUserId, orderId, db = prisma, incl
 }
 
 export function serializeOrderDetail(order, { includePaymentReference = false } = {}) {
+  const payment = preferredPayment(order.payments);
   const serialized = {
     id: order.id,
     orderNumber: order.orderNumber,
@@ -88,6 +137,8 @@ export function serializeOrderDetail(order, { includePaymentReference = false } 
     totalKobo: toJsonKobo(order.totalKobo, 'totalKobo'),
     currency: order.currency,
     createdAt: order.createdAt.toISOString(),
+    payment: safePayment(payment),
+    availableActions: customerOrderActions(order),
   };
 
   if (includePaymentReference) {
@@ -98,6 +149,7 @@ export function serializeOrderDetail(order, { includePaymentReference = false } 
 }
 
 export function serializeOrderSummary(order) {
+  const payment = preferredPayment(order.payments);
   return {
     id: order.id,
     orderNumber: order.orderNumber,
@@ -107,6 +159,52 @@ export function serializeOrderSummary(order) {
     currency: order.currency,
     itemCount: order._count.items,
     createdAt: order.createdAt.toISOString(),
+    payment: safePayment(payment),
+    availableActions: customerOrderActions(order),
+  };
+}
+
+const maskedCustomerName = (value) => {
+  const parts = String(value || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'ShopSphare customer';
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts.at(-1).slice(0, 1).toUpperCase()}.`;
+};
+
+export function serializePaidReceipt(order) {
+  const paidPayments = order.payments.filter(({ status }) => status === PAYMENT_STATUS.PAID);
+  const payment = paidPayments[0];
+  if (order.status !== ORDER_STATUS.PAID || order.paymentStatus !== PAYMENT_STATUS.PAID
+    || paidPayments.length !== 1 || !(payment?.paidAt instanceof Date)) {
+    throw commerceError(
+      'RECEIPT_NOT_AVAILABLE',
+      'A paid receipt is not available for this order.',
+      409,
+    );
+  }
+
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    status: order.status,
+    paymentStatus: order.paymentStatus,
+    customer: { displayName: maskedCustomerName(order.recipientName) },
+    destination: {
+      cityOrLga: order.cityOrLga,
+      state: order.state,
+      country: order.country,
+    },
+    lines: linesFromOrder(order),
+    subtotalKobo: toJsonKobo(order.subtotalKobo, 'subtotalKobo'),
+    shippingKobo: toJsonKobo(order.shippingKobo, 'shippingKobo'),
+    totalKobo: toJsonKobo(order.totalKobo, 'totalKobo'),
+    currency: order.currency,
+    createdAt: order.createdAt.toISOString(),
+    payment: {
+      provider: payment.provider,
+      status: payment.status,
+      paidAt: payment.paidAt.toISOString(),
+    },
   };
 }
 
@@ -241,6 +339,16 @@ export function listOwnedOrders({ authenticatedUserId, limit, db = prisma }) {
       currency: true,
       createdAt: true,
       _count: { select: { items: true } },
+      payments: {
+        select: {
+          provider: true,
+          status: true,
+          initializedAt: true,
+          paidAt: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'asc' },
+      },
     },
   });
 }

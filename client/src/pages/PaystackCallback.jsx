@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
 import { verifyOrderPayment } from '../api/payments';
-import { clearCart } from '../store/cart';
 import { formatNaira } from '../utils/money';
+import { clearCartAfterVerifiedPayment } from '../utils/verifiedPaymentCart';
 
 const validOrderId = (value) => typeof value === 'string'
   && /^[A-Za-z0-9_-]{8,64}$/.test(value);
@@ -15,7 +15,6 @@ export default function PaystackCallback() {
   const [state, setState] = useState({ status: 'VERIFYING', result: null, error: null });
   const mountedRef = useRef(true);
   const startedRef = useRef(false);
-  const clearedRef = useRef(false);
 
   const verify = useCallback(async () => {
     if (!validOrderId(orderId)) {
@@ -27,14 +26,7 @@ export default function PaystackCallback() {
       const result = await verifyOrderPayment(orderId);
       if (!mountedRef.current) return;
       if (result.verified) {
-        const marker = `shopsphare:payment-cleared:${orderId}`;
-        let previouslyCleared = false;
-        try { previouslyCleared = sessionStorage.getItem(marker) === 'true'; } catch { previouslyCleared = false; }
-        if (!clearedRef.current && !previouslyCleared) {
-          dispatch(clearCart());
-          clearedRef.current = true;
-          try { sessionStorage.setItem(marker, 'true'); } catch { /* In-memory guard still prevents duplicate clearing. */ }
-        }
+        clearCartAfterVerifiedPayment(dispatch, orderId);
         setState({ status: 'SUCCESS', result, error: null });
       } else if (result.payment.status === 'PENDING' || result.payment.status === 'INITIALIZED') {
         setState({ status: 'PENDING', result, error: null });
@@ -57,7 +49,7 @@ export default function PaystackCallback() {
     return () => { mountedRef.current = false; };
   }, [verify]);
 
-  const orderPath = validOrderId(orderId) ? `/orders/${orderId}/payment` : '/shop';
+  const orderPath = validOrderId(orderId) ? `/orders/${orderId}` : '/shop';
   return (
     <main className='container mx-auto min-h-[70vh] px-4 py-12'>
       <section className='mx-auto max-w-2xl rounded-lg bg-secondary p-7 shadow-md dark:bg-gray-900'>

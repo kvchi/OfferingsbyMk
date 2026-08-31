@@ -329,11 +329,14 @@ test('owned order retrieval is newest-first, non-enumerating and excludes sensit
   assert.equal(list.status, 200);
   assert.deepEqual(list.body.orders.map(({ id }) => id), [second.body.order.id, first.body.order.id]);
   assert.equal(list.body.orders.every(({ paymentStatus }) => paymentStatus === 'UNPAID'), true);
+  assert.equal(list.body.orders.every(({ availableActions }) => availableActions.payment === 'INITIALIZE'), true);
+  assert.equal(JSON.stringify(list.body).includes('+2348012345678'), false);
+  assert.equal(JSON.stringify(list.body).includes('12 Market Road'), false);
 
   const detail = await authorize(request(app).get(`/api/orders/${second.body.order.id}`));
   assert.equal(detail.status, 200);
   assert.equal(detail.body.order.id, second.body.order.id);
-  for (const forbidden of ['passwordHash', 'failureMessage', 'providerReference', 'authorizationToken', 'cardNumber']) {
+  for (const forbidden of ['passwordHash', 'failureMessage', 'providerReference', 'authorizationUrl', 'authorizationToken', 'providerTransactionId', 'cardNumber']) {
     assert.equal(JSON.stringify({ list: list.body, detail: detail.body }).includes(forbidden), false);
   }
 
@@ -348,6 +351,79 @@ test('owned order retrieval is newest-first, non-enumerating and excludes sensit
 
   const invalidLimit = await authorize(request(app).get('/api/orders?limit=500&userId=checkout-user-b'));
   assert.equal(invalidLimit.status, 400);
+});
+
+test('customer order states and paid receipts expose only safe server-authoritative fields', async () => {
+  const states = [
+    { key: 'state-initialized-001', orderStatus: 'PENDING', paymentStatus: 'INITIALIZED', action: 'VERIFY' },
+    { key: 'state-failed-001', orderStatus: 'PENDING', paymentStatus: 'FAILED', action: 'INITIALIZE' },
+    { key: 'state-cancelled-001', orderStatus: 'CANCELLED', paymentStatus: 'UNPAID', action: 'NONE' },
+    { key: 'state-paid-001', orderStatus: 'PAID', paymentStatus: 'PAID', action: 'NONE' },
+  ];
+
+  const created = [];
+  for (const state of states) {
+    const response = await authorize(request(app).post('/api/orders'))
+      .set('Idempotency-Key', state.key)
+      .send(checkoutBody({ items: [{ productId: 'featured-rosemary', quantity: 1 }] }));
+    assert.equal(response.status, 201);
+    created.push({ ...state, id: response.body.order.id });
+  }
+
+  const paidAt = new Date('2026-08-29T10:30:00.000Z');
+  for (const state of created) {
+    await prisma.$transaction([
+      prisma.order.update({
+        where: { id: state.id },
+        data: { status: state.orderStatus, paymentStatus: state.paymentStatus },
+      }),
+      prisma.payment.updateMany({
+        where: { orderId: state.id },
+        data: {
+          status: state.paymentStatus,
+          initializedAt: state.paymentStatus === 'INITIALIZED' ? new Date('2026-08-29T10:00:00.000Z') : null,
+          paidAt: state.paymentStatus === 'PAID' ? paidAt : null,
+          authorizationUrl: state.paymentStatus === 'INITIALIZED' ? 'https://checkout.paystack.com/private-test-value' : null,
+          providerReference: state.paymentStatus === 'INITIALIZED' ? `provider-${state.id}` : null,
+          providerTransactionId: state.paymentStatus === 'PAID' ? `9000${created.indexOf(state)}` : null,
+          failureMessage: state.paymentStatus === 'FAILED' ? 'private provider failure detail' : null,
+        },
+      }),
+    ]);
+  }
+
+  for (const state of created) {
+    const detail = await authorize(request(app).get(`/api/orders/${state.id}`));
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.order.status, state.orderStatus);
+    assert.equal(detail.body.order.paymentStatus, state.paymentStatus);
+    assert.equal(detail.body.order.availableActions.payment, state.action);
+    assert.equal(detail.body.order.availableActions.receipt, state.paymentStatus === 'PAID');
+    const serialized = JSON.stringify(detail.body);
+    for (const forbidden of ['private-test-value', 'providerReference', 'providerTransactionId', 'failureMessage', 'reference']) {
+      assert.equal(serialized.includes(forbidden), false);
+    }
+  }
+
+  const paid = created.find(({ paymentStatus }) => paymentStatus === 'PAID');
+  const unpaid = created.find(({ paymentStatus }) => paymentStatus === 'FAILED');
+  const receipt = await authorize(request(app).get(`/api/orders/${paid.id}/receipt`));
+  assert.equal(receipt.status, 200);
+  assert.equal(receipt.body.receipt.payment.status, 'PAID');
+  assert.equal(receipt.body.receipt.payment.paidAt, paidAt.toISOString());
+  assert.equal(receipt.body.receipt.customer.displayName, 'Ada O.');
+  assert.deepEqual(Object.keys(receipt.body.receipt.destination).sort(), ['cityOrLga', 'country', 'state']);
+  for (const forbidden of ['reference', 'authorizationUrl', 'providerTransactionId', '+2348012345678', '12 Market Road']) {
+    assert.equal(JSON.stringify(receipt.body).includes(forbidden), false);
+  }
+
+  const nonPaidReceipt = await authorize(request(app).get(`/api/orders/${unpaid.id}/receipt`));
+  assert.equal(nonPaidReceipt.status, 409);
+  assert.equal(nonPaidReceipt.body.code, 'RECEIPT_NOT_AVAILABLE');
+  const unauthorizedReceipt = await authorize(request(app).get(`/api/orders/${paid.id}/receipt`), tokens[1]);
+  const missingReceipt = await authorize(request(app).get('/api/orders/not-a-real-order/receipt'));
+  assert.equal(unauthorizedReceipt.status, 404);
+  assert.deepEqual(unauthorizedReceipt.body, missingReceipt.body);
 });
 
 test('order and payment references remain unique', async () => {

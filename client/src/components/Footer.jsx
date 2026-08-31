@@ -6,7 +6,7 @@ import { footerData } from '../data/footerData'
 
 export default function Footer() {
   return (
-    <footer className='bg-secondary py-20 px-4  relative dark:bg-gray-900 dark:text-yellow-50 duration-200'>
+    <footer data-site-footer className='bg-secondary py-20 px-4  relative dark:bg-gray-900 dark:text-yellow-50 duration-200'>
 
       <div className='container mx-auto grid  md:grid-cols-5 gap-4 relative'>
         <div className='col-span-2 flex flex-col gap-2'>

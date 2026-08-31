@@ -100,7 +100,7 @@ export default function Header() {
 
   return (
     <>
-    <header className='fixed top-0 left-0 right-0 z-[80] h-16 px-4 py-3 md:h-20 md:px-6 md:py-5 bg-[#FBF6E2] shadow-lg dark:bg-gray-900 dark:text-yellow-50 duration-200'>
+    <header data-site-header className='fixed top-0 left-0 right-0 z-[80] h-16 px-4 py-3 md:h-20 md:px-6 md:py-5 bg-[#FBF6E2] shadow-lg dark:bg-gray-900 dark:text-yellow-50 duration-200'>
       <div className='relative container mx-auto md:flex-row flex items-center justify-between'>
         <div className='hidden md:flex flex-col md:flex-row items-center space-x-4 '>
           {leftLinks.map((link) => (
@@ -151,6 +151,7 @@ export default function Header() {
         <span aria-hidden='true' className='absolute top-8 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center'>{totalQuantity}</span>
         </button>
         <div className='hidden items-center gap-2 md:flex'>
+          {isAuthenticated && <Link to='/orders' className={linkClass}>My Orders</Link>}
           {rightLinks.map((link) => renderAuthLink(link))}
         </div>
         <button
@@ -167,6 +168,11 @@ export default function Header() {
       </div>
       
           <nav id='mobile-navigation-menu' aria-hidden={!showMenu} className={`md:hidden flex flex-col absolute left-0 top-full z-[70] bg-secondary dark:bg-gray-800 w-full py-2 px-4 transition-all duration-300 ease-out ${showMenu ? 'visible menu-enter-active' : 'invisible pointer-events-none menu-enter'}`}>
+            {isAuthenticated && (
+              <div className='relative rounded-md p-2 hover:bg-white dark:hover:bg-gray-900'>
+                <Link to='/orders' onClick={closeMenu} className='text-primary text-xl font-normal'>My Orders</Link>
+              </div>
+            )}
           
             {headerData.map((link) => (
               <div key={link.id}   className='relative dark:hover:bg-gray-900 p-2 hover:bg-white rounded-md'>

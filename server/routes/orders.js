@@ -11,6 +11,7 @@ import {
   findOwnedOrder,
   listOwnedOrders,
   serializeOrderDetail,
+  serializePaidReceipt,
   serializeOrderSummary,
 } from '../commerce/orders.js';
 import { initializePayment, verifyPayment } from '../commerce/payments.js';
@@ -61,6 +62,22 @@ export function createOrdersRouter({ authenticate, paystackClient, paystackCallb
         error: false,
         orders: orders.map(serializeOrderSummary),
       });
+    } catch (error) {
+      return sendCommerceError(res, error);
+    }
+  });
+
+  router.get('/:orderId/receipt', async (req, res) => {
+    const parsed = orderIdSchema.safeParse(req.params.orderId);
+    if (!parsed.success) return sendCommerceError(res, notFound());
+
+    try {
+      const order = await findOwnedOrder({
+        authenticatedUserId: req.user.id,
+        orderId: parsed.data,
+      });
+      if (!order) return sendCommerceError(res, notFound());
+      return res.json({ error: false, receipt: serializePaidReceipt(order) });
     } catch (error) {
       return sendCommerceError(res, error);
     }

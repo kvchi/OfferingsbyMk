@@ -56,7 +56,7 @@ function renderCheckout(items = initialItems, { strict = false } = {}) {
       <MemoryRouter initialEntries={['/checkout']}>
         <Routes>
           <Route path='/checkout' element={<Checkout />} />
-          <Route path='/orders/:orderId/payment' element={<div>Pending destination</div>} />
+          <Route path='/orders/:orderId' element={<div>Order destination</div>} />
           <Route path='/shop' element={<div>Shop destination</div>} />
         </Routes>
         <LocationProbe />
@@ -286,12 +286,12 @@ describe('pending-order creation and idempotency', () => {
 
     checkoutApi.createOrder.mockResolvedValueOnce({ order: { id: 'order-123' }, replayed: false });
     fireEvent.click(screen.getByRole('button', { name: 'Create pending order' }));
-    expect(await screen.findByText('Pending destination')).toBeInTheDocument();
+    expect(await screen.findByText('Order destination')).toBeInTheDocument();
     expect(checkoutApi.createOrder.mock.calls[0][1]).toBe(storedAttempt.key);
     expect(checkoutApi.createOrder.mock.calls[1][1]).toBe(storedAttempt.key);
     expect(sessionStorage.getItem(CHECKOUT_ATTEMPT_STORAGE_KEY)).toBeNull();
     expect(store.getState().cart.items).toEqual(initialItems);
-    expect(screen.getByTestId('location')).toHaveTextContent('/orders/order-123/payment');
+    expect(screen.getByTestId('location')).toHaveTextContent('/orders/order-123');
   });
 
   it('handles replayed success and sends no preview totals to order creation', async () => {
@@ -299,7 +299,7 @@ describe('pending-order creation and idempotency', () => {
     await reachReview();
     checkoutApi.createOrder.mockResolvedValueOnce({ order: { id: 'replayed-order' }, replayed: true });
     fireEvent.click(screen.getByRole('button', { name: 'Create pending order' }));
-    expect(await screen.findByText('Pending destination')).toBeInTheDocument();
+    expect(await screen.findByText('Order destination')).toBeInTheDocument();
     const [payload, key] = checkoutApi.createOrder.mock.calls[0];
     expect(payload).toEqual(checkoutApi.previewCheckout.mock.calls[0][0]);
     expect(typeof key).toBe('string');

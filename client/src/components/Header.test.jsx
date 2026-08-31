@@ -1,6 +1,6 @@
 import React from 'react';
 import { configureStore } from '@reduxjs/toolkit';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -50,6 +50,16 @@ beforeEach(() => {
 });
 
 describe('accessible persistent header', () => {
+  it('shows My Orders in desktop and mobile navigation only to authenticated customers', () => {
+    renderHeader();
+    expect(screen.queryByRole('link', { name: 'My Orders', hidden: true })).not.toBeInTheDocument();
+    cleanup();
+    renderHeader({ authenticated: true });
+    const links = screen.getAllByRole('link', { name: 'My Orders', hidden: true });
+    expect(links).toHaveLength(2);
+    expect(links.every((link) => link.getAttribute('href') === '/orders')).toBe(true);
+  });
+
   it('uses fixed viewport positioning, an elevated layer, and a matching spacer', () => {
     renderHeader();
     const header = screen.getByRole('banner');

@@ -56,7 +56,14 @@ describe('application route and layout smoke tests', () => {
     expect(screen.getByRole('link', { name: /browse shop/i })).toHaveAttribute('href', '/shop');
   });
 
-  it.each(['/checkout', '/orders/order-owned-1/payment', '/payments/paystack/callback?orderId=order-owned-1'])('protects %s and redirects logged-out visitors to Login', async (path) => {
+  it.each([
+    '/checkout',
+    '/orders',
+    '/orders/order-owned-1',
+    '/orders/order-owned-1/receipt',
+    '/orders/order-owned-1/payment',
+    '/payments/paystack/callback?orderId=order-owned-1',
+  ])('protects %s and redirects logged-out visitors to Login', async (path) => {
     renderAt(path);
     expect(await screen.findByRole('heading', { name: /get exclusive access/i })).toBeInTheDocument();
   });

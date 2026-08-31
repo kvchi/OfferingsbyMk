@@ -226,7 +226,7 @@ export default function Checkout() {
       if (!mountedRef.current) return;
       setRequestState(CHECKOUT_REQUEST_STATE.ORDER_CREATED);
       clearCheckoutAttempt();
-      navigate(`/orders/${encodeURIComponent(result.order.id)}/payment`);
+      navigate(`/orders/${encodeURIComponent(result.order.id)}`);
     } catch (error) {
       if (!mountedRef.current) return;
       orderRequestRef.current = false;

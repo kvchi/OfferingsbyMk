@@ -19,7 +19,7 @@ import Products from "../components/Products";
 import TopProducts from "../components/TopProducts";
 import { Link } from 'react-router-dom';
 import ResponsiveImage from '../components/ResponsiveImage';
-import { CarouselAutoplayControl, useAccessibleCarouselAutoplay } from '../components/AccessibleCarousel';
+import { useAccessibleCarouselAutoplay } from '../components/AccessibleCarousel';
 
 
 export default function Home() {
@@ -73,7 +73,6 @@ export default function Home() {
               </SwiperSlide>
             ))}
           </Swiper>
-          <CarouselAutoplayControl label="featured products carousel" paused={heroCarousel.paused} onToggle={heroCarousel.togglePaused} />
           </div>
           <div
             data-aos="zoom-in"
@@ -251,7 +250,6 @@ export default function Home() {
               </SwiperSlide>
             ))}
           </Swiper>
-          <CarouselAutoplayControl label="testimonials carousel" paused={testimonialCarousel.paused} onToggle={testimonialCarousel.togglePaused} />
             </div>
           </div>
       </section>

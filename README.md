@@ -16,7 +16,7 @@ Before publishing the portfolio, capture development/test-data views of:
 - My Orders, a paid order, and a receipt with identifying values masked;
 - Login and password recovery.
 
-Store approved captures in `docs/screenshots/` and add them here with descriptive alternative text. Check desktop, tablet, and mobile layouts; light and dark modes; keyboard focus; carousel Pause/Resume controls; image loading; and the Console/Network panels before publishing.
+Store approved captures in `docs/screenshots/` and add them here with descriptive alternative text. Check desktop, tablet, and mobile layouts; light and dark modes; keyboard focus; reduced-motion carousel behavior; image loading; and the Console/Network panels before publishing.
 
 ## Features
 
@@ -230,7 +230,7 @@ The generator uses layout-derived widths, avoids upscaling, preserves originals,
 - Persistent visible authentication labels and appropriate names, types, autocomplete values, required state, and error relationships
 - Semantic password visibility and Login/Signup switching buttons with visible focus indicators
 - Announced validation, loading, error, and success states with duplicate-submit prevention
-- Keyboard-operable, independently controlled carousel Pause/Resume buttons
+- Carousel autoplay is disabled when reduced motion is requested and is not resumed automatically
 - Autoplay disabled when reduced motion is initially requested and never automatically resumed after a reduced-motion change
 - Meaningful product alternative text, decorative empty alternatives, intrinsic image dimensions, semantic headings, and protected focus flows
 

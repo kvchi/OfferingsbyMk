@@ -2,7 +2,7 @@ import React from 'react';
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import cartReducer from '../store/cart';
 import Home from './Home';
@@ -51,11 +51,8 @@ describe('deliberate page image loading', () => {
       expect(laterSlide).toHaveAttribute('fetchpriority', 'low');
     }
     expect(screen.getAllByTestId('swiper-slide')).toHaveLength(12);
-    const heroControl = screen.getByRole('button', { name: 'Pause featured products carousel' });
-    expect(screen.getByRole('button', { name: 'Pause testimonials carousel' })).toBeInTheDocument();
-    fireEvent.click(heroControl);
-    expect(screen.getByRole('button', { name: 'Resume featured products carousel' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Pause testimonials carousel' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /(?:pause|resume).*carousel/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/autoplay (?:running|paused)/i)).not.toBeInTheDocument();
   });
 
   it('lazy-loads below-the-fold Home product and promotional imagery', () => {
@@ -83,6 +80,7 @@ describe('deliberate page image loading', () => {
     expect(screen.getByRole('img', { name: 'Soy Wax product' })).toHaveAttribute('sizes', '250px');
     expect(screen.getAllByTestId('swiper')).toHaveLength(1);
     expect(screen.getAllByTestId('swiper-slide')).toHaveLength(5);
-    expect(screen.getByRole('button', { name: 'Pause shop highlights carousel' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /(?:pause|resume).*carousel/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/autoplay (?:running|paused)/i)).not.toBeInTheDocument();
   });
 });

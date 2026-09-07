@@ -1,61 +1,79 @@
-import React, { StrictMode } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import React, { StrictMode, useEffect } from 'react';
+import { act, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CarouselAutoplayControl, useAccessibleCarouselAutoplay } from './AccessibleCarousel';
+import { useAccessibleCarouselAutoplay } from './AccessibleCarousel';
 
 const originalMatchMedia = window.matchMedia;
 
-function Harness({ label }) {
+function Harness({ swiper }) {
   const carousel = useAccessibleCarouselAutoplay(4000);
-  return <CarouselAutoplayControl label={label} paused={carousel.paused} onToggle={carousel.togglePaused} />;
+
+  useEffect(() => {
+    carousel.onSwiper(swiper);
+  }, [carousel.onSwiper, swiper]);
+
+  return (
+    <div
+      data-testid="carousel-settings"
+      data-autoplay-enabled={String(carousel.autoplay.enabled)}
+      data-autoplay-delay={carousel.autoplay.delay}
+    />
+  );
 }
 
 afterEach(() => {
   window.matchMedia = originalMatchMedia;
 });
 
-describe('accessible carousel autoplay controls', () => {
-  it('uses a semantic, named Pause/Resume button with a visible status', () => {
-    render(<Harness label="featured products carousel" />);
-    const pause = screen.getByRole('button', { name: 'Pause featured products carousel' });
-    expect(pause.tagName).toBe('BUTTON');
-    expect(pause).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByRole('status')).toHaveTextContent('Autoplay running');
+describe('reduced-motion carousel autoplay', () => {
+  it('keeps autoplay enabled without rendering visible controls by default', () => {
+    const swiper = { autoplay: { start: vi.fn(), stop: vi.fn() } };
+    render(<Harness swiper={swiper} />);
 
-    pause.focus();
-    expect(pause).toHaveFocus();
-    fireEvent.click(pause);
-    expect(screen.getByRole('button', { name: 'Resume featured products carousel' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('status')).toHaveTextContent('Autoplay paused');
+    expect(screen.getByTestId('carousel-settings')).toHaveAttribute('data-autoplay-enabled', 'true');
+    expect(screen.getByTestId('carousel-settings')).toHaveAttribute('data-autoplay-delay', '4000');
+    expect(screen.queryByRole('button', { name: /carousel/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
-  it('keeps the state of separate carousels independent', () => {
-    render(<><Harness label="hero carousel" /><Harness label="testimonials carousel" /></>);
-    fireEvent.click(screen.getByRole('button', { name: 'Pause hero carousel' }));
-
-    expect(screen.getByRole('button', { name: 'Resume hero carousel' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Pause testimonials carousel' })).toBeInTheDocument();
-  });
-
-  it('starts paused for reduced motion and does not automatically resume', () => {
-    let changeListener;
-    let matches = true;
+  it('disables autoplay when reduced motion is already requested', () => {
     window.matchMedia = vi.fn(() => ({
-      get matches() { return matches; },
+      matches: true,
+      media: '(prefers-reduced-motion: reduce)',
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    const swiper = { autoplay: { start: vi.fn(), stop: vi.fn() } };
+
+    render(<Harness swiper={swiper} />);
+
+    expect(screen.getByTestId('carousel-settings')).toHaveAttribute('data-autoplay-enabled', 'false');
+    expect(swiper.autoplay.stop).toHaveBeenCalled();
+  });
+
+  it('stops autoplay when reduced motion is enabled and does not resume it automatically', () => {
+    let changeListener;
+    window.matchMedia = vi.fn(() => ({
+      matches: false,
       media: '(prefers-reduced-motion: reduce)',
       addEventListener: (_event, listener) => { changeListener = listener; },
       removeEventListener: vi.fn(),
     }));
-    render(<Harness label="shop highlights carousel" />);
-    expect(screen.getByRole('button', { name: 'Resume shop highlights carousel' })).toBeInTheDocument();
+    const swiper = { autoplay: { start: vi.fn(), stop: vi.fn() } };
+    render(<Harness swiper={swiper} />);
 
-    matches = false;
-    changeListener({ matches: false });
-    expect(screen.getByRole('button', { name: 'Resume shop highlights carousel' })).toBeInTheDocument();
+    act(() => changeListener({ matches: true }));
+    expect(swiper.autoplay.stop).toHaveBeenCalled();
+
+    act(() => changeListener({ matches: false }));
+    expect(swiper.autoplay.start).not.toHaveBeenCalled();
   });
 
-  it('does not duplicate controls when mounted in React Strict Mode', () => {
-    render(<StrictMode><Harness label="featured products carousel" /></StrictMode>);
-    expect(screen.getAllByRole('button', { name: 'Pause featured products carousel' })).toHaveLength(1);
+  it('does not render duplicate UI in React Strict Mode', () => {
+    const swiper = { autoplay: { start: vi.fn(), stop: vi.fn() } };
+    render(<StrictMode><Harness swiper={swiper} /></StrictMode>);
+
+    expect(screen.getAllByTestId('carousel-settings')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: /carousel/i })).not.toBeInTheDocument();
   });
 });

@@ -11,7 +11,7 @@ import Herbs from '../components/Herbs';
 import HomeDecor from '../components/HomeDecor';
 import Wellness from '../components/Wellness';
 import ResponsiveImage from '../components/ResponsiveImage';
-import { CarouselAutoplayControl, useAccessibleCarouselAutoplay } from '../components/AccessibleCarousel';
+import { useAccessibleCarouselAutoplay } from '../components/AccessibleCarousel';
 
 
 
@@ -61,7 +61,6 @@ export default function Shop() {
               </SwiperSlide>
             ))}
           </Swiper>
-          <CarouselAutoplayControl label="shop highlights carousel" paused={heroCarousel.paused} onToggle={heroCarousel.togglePaused} />
      </section>
     
         <section className='rounded-b-2xl mb-8 '>

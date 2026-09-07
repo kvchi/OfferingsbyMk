@@ -14,16 +14,16 @@ const maskedEmail = (value) => {
 
 export function buildPasswordResetEmail({ resetUrl, expiresInMinutes }) {
   const safeUrl = escapeHtml(resetUrl);
-  const subject = 'Reset your ShopSphare password';
+  const subject = 'Reset your OfferingsbyMK password';
   const text = [
-    'ShopSphare password reset',
+    'OfferingsbyMK password reset',
     '',
     `Use this link within ${expiresInMinutes} minutes to choose a new password:`,
     resetUrl,
     '',
     'If you did not request this reset, ignore this email. Your password will remain unchanged.',
   ].join('\n');
-  const html = `<h1>ShopSphare password reset</h1><p>Use the link below within ${expiresInMinutes} minutes to choose a new password.</p><p><a href="${safeUrl}">Reset password</a></p><p>If you did not request this reset, ignore this email. Your password will remain unchanged.</p>`;
+  const html = `<h1>OfferingsbyMK password reset</h1><p>Use the link below within ${expiresInMinutes} minutes to choose a new password.</p><p><a href="${safeUrl}">Reset password</a></p><p>If you did not request this reset, ignore this email. Your password will remain unchanged.</p>`;
   return { subject, text, html };
 }
 

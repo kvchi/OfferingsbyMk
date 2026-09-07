@@ -263,7 +263,7 @@ export default function Checkout() {
         <header className='mb-8'>
           <p className='text-sm font-semibold uppercase tracking-[0.2em] text-primary'>{phase === 'DELIVERY' ? 'Delivery' : 'Delivery → Review'}</p>
           <h1 ref={pageHeadingRef} tabIndex='-1' className='mt-2 text-3xl font-bold text-slate-900 focus-visible:outline-none dark:text-white'>Checkout</h1>
-          <p className='mt-2 text-slate-600 dark:text-slate-300'>Create a pending order using prices verified by the ShopSphare server. Payment comes later.</p>
+          <p className='mt-2 text-slate-600 dark:text-slate-300'>Create a pending order using prices verified by the store server. Payment comes later.</p>
         </header>
 
         {unresolvedCount > 0 && (

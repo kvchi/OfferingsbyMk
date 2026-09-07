@@ -8,7 +8,7 @@ import {toast} from 'react-hot-toast';
 import { formatNaira } from '../utils/money';
 import ResponsiveImage from '../components/ResponsiveImage';
 
-export const PRODUCT_DESCRIPTION_FALLBACK = 'Additional product details are coming soon.';
+export const PRODUCT_DESCRIPTION_FALLBACK = 'A thoughtfully selected item from the OfferingsbyMK collection.';
 
 export default function ProductDetail() {
     const {id} =useParams();

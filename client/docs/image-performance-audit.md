@@ -57,7 +57,7 @@ Baseline production build:
 | `lavenderbg.png` | PNG 500×500 | 201,947 | Home top-products art | Below / no | eager | lazy |
 | `vase.png` | PNG 500×500 | 117,048 | Home top-products art | Below / no | eager | lazy |
 | `incense.jpg` | JPG 7448×4968 | 2,798,516 | Home promotion | Below / no | eager | lazy |
-| `scentedCandles.jpg` | JPG 3000×2000 | 217,811 | Home newsletter; About sections | Below / no | eager | lazy |
+| `scentedCandles.jpg` | JPG 3000×2000 | 217,811 | Home collection callout; About sections | Below / no | eager | lazy |
 | `light1.jpg` | JPG 6000×4000 | 1,617,799 | Login/Forgot/Reset background | Above / yes | eager | eager, high priority |
 | Picsum `101`–`107` | remote JPEG, 200×200 URL | remote | Home testimonials | Below / no | eager | lazy, 80×80 intrinsic size |
 | `MdPanoramaPhotosphere` | vector React icon | n/a | Header/Footer logo | Above / no | inline vector | unchanged |

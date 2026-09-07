@@ -166,7 +166,7 @@ export function serializeOrderSummary(order) {
 
 const maskedCustomerName = (value) => {
   const parts = String(value || '').trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'ShopSphare customer';
+  if (parts.length === 0) return 'OfferingsbyMK customer';
   if (parts.length === 1) return parts[0];
   return `${parts[0]} ${parts.at(-1).slice(0, 1).toUpperCase()}.`;
 };

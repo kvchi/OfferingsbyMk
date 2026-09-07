@@ -23,19 +23,27 @@ export default function ResetPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [tokenRejected, setTokenRejected] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [formError, setFormError] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (tokenRejected || completed || isSubmitting) return;
     if (newPassword.length < 8 || newPassword.length > 72) {
-      toast.error('Password must contain between 8 and 72 characters.');
+      const message = 'Password must contain between 8 and 72 characters.';
+      setFieldErrors({ newPassword: message });
+      toast.error(message);
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error('Password confirmation does not match.');
+      const message = 'Password confirmation does not match.';
+      setFieldErrors({ confirmPassword: message });
+      toast.error(message);
       return;
     }
 
+    setFieldErrors({});
+    setFormError('');
     setIsSubmitting(true);
     try {
       const result = await resetPassword({ token, newPassword, confirmPassword });
@@ -55,7 +63,9 @@ export default function ResetPassword() {
         toast.error(INVALID_RESET_MESSAGE);
         return;
       }
-      toast.error(error.response?.data?.message || 'Unable to reset password. Please request a new link.');
+      const message = error.response?.data?.message || 'Unable to reset password. Please try again.';
+      setFormError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -66,7 +76,7 @@ export default function ResetPassword() {
     content = (
       <div role="status" aria-live="polite">
         <p className="mb-6 text-dark/80 dark:text-secondary">Your password has been reset. You can now log in with your new password.</p>
-        <Link to="/login" className="inline-block py-2 px-6 bg-primary text-white rounded-md hover:bg-yellow-600">Go to login</Link>
+        <Link to="/login" className="inline-block min-h-11 py-2 px-6 bg-primary text-white rounded-md hover:bg-yellow-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Go to login</Link>
       </div>
     );
   } else if (tokenRejected) {
@@ -74,52 +84,65 @@ export default function ResetPassword() {
       <div role="alert" aria-live="assertive">
         <p className="mb-6 text-dark/80 dark:text-secondary">{INVALID_RESET_MESSAGE}</p>
         <div className="flex flex-col items-start gap-3">
-          <Link to="/forgot-password" className="text-primary underline">Request a new reset link</Link>
-          <Link to="/login" className="text-primary underline">Back to login</Link>
+          <Link to="/forgot-password" className="min-h-11 rounded-sm py-2 text-primary underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Request a new reset link</Link>
+          <Link to="/login" className="min-h-11 rounded-sm py-2 text-primary underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Back to login</Link>
         </div>
       </div>
     );
   } else if (!tokenIsValid) {
     content = (
       <div role="alert">
-        <p className="mb-6 text-dark/80 dark:text-secondary">This password reset link is invalid or incomplete.</p>
-        <Link to="/forgot-password" className="text-primary underline">Request a new reset link</Link>
+        <p className="mb-6 text-dark/80 dark:text-secondary">{INVALID_RESET_MESSAGE}</p>
+        <div className="flex flex-col items-start gap-3">
+          <Link to="/forgot-password" className="min-h-11 rounded-sm py-2 text-primary underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Request a new reset link</Link>
+          <Link to="/login" className="min-h-11 rounded-sm py-2 text-primary underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Back to login</Link>
+        </div>
       </div>
     );
   } else {
     content = (
-      <form data-testid="reset-password-form" onSubmit={handleSubmit}>
+      <form data-testid="reset-password-form" onSubmit={handleSubmit} noValidate aria-busy={isSubmitting}>
+        {formError && <p role="alert" className="mb-4 text-sm font-medium text-red-700 dark:text-red-300">{formError}</p>}
         <label htmlFor="new-password" className="block font-medium text-dark/80 dark:text-secondary">New password</label>
         <div className="mb-4 flex items-center gap-1 border-b p-2 dark:text-primary dark:border-primary">
           <RiLockPasswordLine aria-hidden="true" />
           <input
             id="new-password"
+            name="newPassword"
             type="password"
             value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
+            onChange={(event) => { setNewPassword(event.target.value); setFieldErrors((current) => ({ ...current, newPassword: undefined })); setFormError(''); }}
             required
             minLength={8}
             maxLength={72}
             autoComplete="new-password"
-            className="flex-1 p-1 dark:text-primary bg-transparent outline-none"
+            aria-invalid={fieldErrors.newPassword ? 'true' : undefined}
+            aria-describedby={fieldErrors.newPassword ? 'new-password-error' : undefined}
+            className="flex-1 rounded-sm p-1 dark:text-primary bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           />
         </div>
+        {fieldErrors.newPassword && <p id="new-password-error" role="alert" className="mb-4 text-sm font-medium text-red-700 dark:text-red-300">{fieldErrors.newPassword}</p>}
         <label htmlFor="confirm-password" className="block font-medium text-dark/80 dark:text-secondary">Confirm new password</label>
         <div className="mb-6 flex items-center gap-1 border-b p-2 dark:text-primary dark:border-primary">
           <RiLockPasswordLine aria-hidden="true" />
           <input
             id="confirm-password"
+            name="confirmPassword"
             type="password"
             value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
+            onChange={(event) => { setConfirmPassword(event.target.value); setFieldErrors((current) => ({ ...current, confirmPassword: undefined })); setFormError(''); }}
             required
             minLength={8}
             maxLength={72}
             autoComplete="new-password"
-            className="flex-1 p-1 dark:text-primary bg-transparent outline-none"
+            aria-invalid={fieldErrors.confirmPassword ? 'true' : undefined}
+            aria-describedby={fieldErrors.confirmPassword ? 'confirm-password-error' : undefined}
+            className="flex-1 rounded-sm p-1 dark:text-primary bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           />
         </div>
-        <button type="submit" disabled={isSubmitting} className="py-2 px-6 md:px-8 bg-primary text-white rounded-md hover:bg-yellow-600 disabled:opacity-60">
+        {fieldErrors.confirmPassword && <p id="confirm-password-error" role="alert" className="mb-4 text-sm font-medium text-red-700 dark:text-red-300">{fieldErrors.confirmPassword}</p>}
+        {isSubmitting && <div role="status" aria-live="polite" className="text-sm text-slate-700 dark:text-secondary">Resetting password…</div>}
+        <button type="submit" disabled={isSubmitting} className="min-h-11 py-2 px-6 md:px-8 bg-primary text-white rounded-md hover:bg-yellow-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60">
           {isSubmitting ? 'Resetting...' : 'Reset password'}
         </button>
       </form>

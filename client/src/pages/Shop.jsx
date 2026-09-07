@@ -11,23 +11,25 @@ import Herbs from '../components/Herbs';
 import HomeDecor from '../components/HomeDecor';
 import Wellness from '../components/Wellness';
 import ResponsiveImage from '../components/ResponsiveImage';
+import { CarouselAutoplayControl, useAccessibleCarouselAutoplay } from '../components/AccessibleCarousel';
 
 
 
 export default function Shop() {
   const { hash } = useLocation();
+  const heroCarousel = useAccessibleCarouselAutoplay(4000);
 
   useEffect(() => {
     if (!hash) return;
 
     requestAnimationFrame(() => {
-      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+      const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior });
     });
   }, [hash]);
 
   const swiperParams = {
     modules: [Autoplay],
-    autoplay: { delay: 4000 },
     loop: true,
     slidesPerView: 1,
   };
@@ -40,7 +42,9 @@ export default function Shop() {
       </div>
       <Swiper key={23}
             {...swiperParams}
-            
+            autoplay={heroCarousel.autoplay}
+            onSwiper={heroCarousel.onSwiper}
+            aria-label="OfferingsbyMK shop highlights"
             className="h-96 w-full mt-20 rounded-2xl"
           >
             {shopData.map((item, index) => (
@@ -57,6 +61,7 @@ export default function Shop() {
               </SwiperSlide>
             ))}
           </Swiper>
+          <CarouselAutoplayControl label="shop highlights carousel" paused={heroCarousel.paused} onToggle={heroCarousel.togglePaused} />
      </section>
     
         <section className='rounded-b-2xl mb-8 '>

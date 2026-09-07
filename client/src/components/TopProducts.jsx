@@ -2,6 +2,7 @@ import React from 'react'
 import { topProducts } from '../data/topProduct'
 import { FaStar } from 'react-icons/fa'
 import ResponsiveImage from './ResponsiveImage'
+import { Link } from 'react-router-dom'
 
 export default function TopProducts() {
   return (
@@ -27,9 +28,9 @@ export default function TopProducts() {
                 {el.title}</h1>
                 <p className="text-gray-600 group-hover:text-primary duration-300 text-sm line-clamp-2 dark:text-primary">
                   {el.description}</p>
-                  <button type='button' disabled title='Ordering coming soon' className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-2 rounded-full mt-6 disabled:cursor-not-allowed disabled:opacity-60">
-                      Place Order — Coming Soon
-                  </button>
+                  <Link to='/shop' className="inline-block font-bold text-lg text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-3 rounded-full mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                      View in shop
+                  </Link>
                   
             </div>
           </div>

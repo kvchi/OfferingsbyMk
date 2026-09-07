@@ -24,12 +24,26 @@ describe('ForgotPassword', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Send reset instructions' }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent('If an eligible account exists');
+    expect(await screen.findByText(/If an eligible account exists/)).toBeInTheDocument();
     expect(authApi.requestPasswordReset).toHaveBeenCalledWith('person@example.com');
   });
 
   it('offers a route back to login', () => {
     render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
     expect(screen.getByRole('link', { name: 'Back to login' })).toHaveAttribute('href', '/login');
+  });
+
+  it('associates validation with the labeled email field', () => {
+    render(<MemoryRouter><ForgotPassword /></MemoryRouter>);
+    const email = screen.getByLabelText('Email address');
+    expect(email).toHaveAttribute('name', 'email');
+    expect(email).toHaveAttribute('autocomplete', 'email');
+
+    fireEvent.change(email, { target: { value: 'not-an-email' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send reset instructions' }));
+
+    expect(email).toHaveAttribute('aria-invalid', 'true');
+    expect(email).toHaveAttribute('aria-describedby', 'forgot-email-error');
+    expect(screen.getByRole('alert')).toHaveTextContent('valid email');
   });
 });

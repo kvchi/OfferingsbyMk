@@ -91,8 +91,9 @@ describe('ResetPassword', () => {
     const store = createAuthenticatedStore();
     renderReset({ initialEntry: '/reset-password', store });
 
-    expect(screen.getByRole('alert')).toHaveTextContent('invalid or incomplete');
+    expect(screen.getByRole('alert')).toHaveTextContent('invalid or has expired');
     expect(screen.getByRole('link', { name: 'Request a new reset link' })).toHaveAttribute('href', '/forgot-password');
+    expect(screen.getByRole('link', { name: 'Back to login' })).toHaveAttribute('href', '/login');
     expect(screen.queryByLabelText('New password')).not.toBeInTheDocument();
     expect(store.getState().auth).toEqual(authenticatedState);
     expect(localStorage.getItem('token')).toBe(authenticatedState.token);
@@ -102,11 +103,21 @@ describe('ResetPassword', () => {
     const reset = vi.spyOn(authApi, 'resetPassword');
     renderValidReset();
 
-    fireEvent.change(screen.getByLabelText('New password'), { target: { value: newPassword } });
-    fireEvent.change(screen.getByLabelText('Confirm new password'), { target: { value: 'DifferentPass!2486' } });
+    const newPasswordInput = screen.getByLabelText('New password');
+    const confirmationInput = screen.getByLabelText('Confirm new password');
+    expect(newPasswordInput).toHaveAttribute('name', 'newPassword');
+    expect(newPasswordInput).toHaveAttribute('autocomplete', 'new-password');
+    expect(newPasswordInput).toBeRequired();
+    expect(confirmationInput).toHaveAttribute('name', 'confirmPassword');
+
+    fireEvent.change(newPasswordInput, { target: { value: newPassword } });
+    fireEvent.change(confirmationInput, { target: { value: 'DifferentPass!2486' } });
     fireEvent.click(screen.getByRole('button', { name: 'Reset password' }));
 
     expect(reset).not.toHaveBeenCalled();
+    expect(confirmationInput).toHaveAttribute('aria-invalid', 'true');
+    expect(confirmationInput).toHaveAttribute('aria-describedby', 'confirm-password-error');
+    expect(screen.getByRole('alert')).toHaveTextContent('does not match');
   });
 
   it.each([
@@ -148,12 +159,12 @@ describe('ResetPassword', () => {
     expect(screen.getByRole('button', { name: 'Reset password' })).toBeEnabled();
     expect(passwordInput).toHaveValue(newPassword);
     expect(confirmationInput).toHaveValue(newPassword);
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Unable to reset password');
     expect(store.getState().auth).toEqual(authenticatedState);
     expect(localStorage.getItem('token')).toBe(authenticatedState.token);
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset password' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Your password has been reset');
+    expect(await screen.findByText('Your password has been reset. You can now log in with your new password.')).toBeInTheDocument();
     expect(reset).toHaveBeenCalledTimes(2);
     expect(store.getState().auth).toEqual(loggedOutState);
   });
@@ -167,7 +178,7 @@ describe('ResetPassword', () => {
     renderValidReset({ store });
     fillAndSubmit();
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Your password has been reset');
+    expect(await screen.findByText('Your password has been reset. You can now log in with your new password.')).toBeInTheDocument();
     expect(authApi.resetPassword).toHaveBeenCalledWith({
       token: validToken,
       newPassword,
@@ -215,7 +226,7 @@ describe('ResetPassword', () => {
     renderValidReset({ store, strictMode: true });
     fillAndSubmit();
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Your password has been reset');
+    expect(await screen.findByText('Your password has been reset. You can now log in with your new password.')).toBeInTheDocument();
     expect(reset).toHaveBeenCalledTimes(1);
     expect(actionTypes.filter((type) => type === 'auth/logout')).toHaveLength(1);
     expect(store.getState().auth).toEqual(loggedOutState);

@@ -19,12 +19,14 @@ import Products from "../components/Products";
 import TopProducts from "../components/TopProducts";
 import { Link } from 'react-router-dom';
 import ResponsiveImage from '../components/ResponsiveImage';
+import { CarouselAutoplayControl, useAccessibleCarouselAutoplay } from '../components/AccessibleCarousel';
 
 
 export default function Home() {
+  const heroCarousel = useAccessibleCarouselAutoplay(4000);
+  const testimonialCarousel = useAccessibleCarouselAutoplay(3000);
   const swiperParams = {
     modules: [Autoplay],
-    autoplay: { delay: 4000 },
     loop: true,
     slidesPerView: 1,
   };
@@ -35,6 +37,7 @@ export default function Home() {
       duration: 600,
       easing: "ease-in-sine",
       delay: 100,
+      disable: () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
     });
     Aos.refresh();
   }, []);
@@ -44,12 +47,16 @@ export default function Home() {
       <section className="container mx-auto relative overflow-hidden bg-gray-100 dark:bg-gray-800 max-w-screen">
         <div className="absolute h-[600px] w-[600px] bg-primary rotate-45 rounded-3xl -top-full right-0 -z-9"></div>
         <aside className=" flex md:flex-row-reverse flex-col mb-4 mt-2 md:mt-0 items-center justify-center p-8">
+          <div className="mt-20 w-[400px] max-w-full">
           <Swiper key={23}
             {...swiperParams}
+            autoplay={heroCarousel.autoplay}
+            onSwiper={heroCarousel.onSwiper}
             data-aos="zoom-out"
             data-aos-once="true"
             data-aos-duration="600"
-            className="h-[400px] w-[400px] object-cover mt-20 rounded-2xl"
+            aria-label="OfferingsbyMK featured products"
+            className="h-[400px] w-full object-cover rounded-2xl"
           >
             {headerBackground.map((item, index) => (
               <SwiperSlide key={item.id} className="relative">
@@ -66,15 +73,17 @@ export default function Home() {
               </SwiperSlide>
             ))}
           </Swiper>
+          <CarouselAutoplayControl label="featured products carousel" paused={heroCarousel.paused} onToggle={heroCarousel.togglePaused} />
+          </div>
           <div
             data-aos="zoom-in"
             data-aos-once="true"
             data-aos-duration="700"
             className="mx-auto text-center"
           >
-            <h3 className="text-4xl font-bold mb-4 mt-8 md:mt-0 text-slate-600 dark:text-primary underline">
+            <h1 className="text-4xl font-bold mb-4 mt-8 md:mt-0 text-slate-600 dark:text-primary underline">
               Browse Our Collection
-            </h3>
+            </h1>
             <p className="text-xl text-slate-600 dark:text-primary max-w-md">
               Explore our wide range of products designed to enhance your
               well-being. From aromatic candles to calming herbs, find the
@@ -85,10 +94,10 @@ export default function Home() {
             data-aos-once='true'
             data-aos-duration='800'
             className="flex justify-center items-center gap-1 ">
-              <button type='button' disabled title='Ordering coming soon' className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-2 rounded-full mt-6 disabled:cursor-not-allowed disabled:opacity-60">
-                Place Order — Coming Soon
-              </button>
-              <BsArrowUpRightCircle className="text-5xl mt-6 text-slate-600 dark:text-primary" />
+              <Link to='/shop' className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-3 rounded-full mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                Shop products
+              </Link>
+              <BsArrowUpRightCircle aria-hidden='true' className="text-5xl mt-6 text-slate-600 dark:text-primary" />
             </div>
           </div>
         </aside>
@@ -132,9 +141,9 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col justify-center gap-6 px-4 md:px-0">
-            <h1 className="text-2xl md:text-3xl font-bold dark:text-primary text-slate-600">Summer Sale upto 50% off</h1>
+            <h2 className="text-2xl md:text-3xl font-bold dark:text-primary text-slate-600">A calmer shopping experience</h2>
             <p className="text-sm text-gray-600 tracking-wide leading-5 max-w-md dark:text-primary">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sequi eos quasi illo harum reiciendis eaque a, ea, repudiandae, excepturi nesciunt facilis pariatur eveniet! 
+              Browse a thoughtful collection, review server-verified totals, and follow every test order from checkout to receipt.
             </p>
             <div className="flex flex-col gap-4 ">
               <div
@@ -149,41 +158,37 @@ export default function Home() {
               className="flex items-center gap-4 "
               >
                 <IoFastFood className="text-4xl h-12 w-12 shadow-sm p-4 rounded-full bg-orange-100 dark:bg-orange-500"/>
-                <p className="text-slate-600 dark:text-primary">Fast Delivry</p>
+                <p className="text-slate-600 dark:text-primary">Server-verified totals</p>
               </div>
               <div
               data-aos='fade-up'
               className="flex items-center gap-4 "
               >
                 <MdOutlinePayments className="text-4xl h-12 w-12 shadow-sm p-4 rounded-full bg-green-100 dark:bg-green-500"/>
-                <p className="text-slate-600 dark:text-primary">Easy Payment Method</p>
+                <p className="text-slate-600 dark:text-primary">Secure Paystack test checkout</p>
               </div>
               <div
               data-aos='fade-up'
               className="flex items-center gap-4 "
               >
                 <GiFoodTruck className="text-4xl h-12 w-12 shadow-sm p-4 rounded-full bg-red-100 dark:bg-red-500"/>
-                <p className="text-slate-600 dark:text-primary">Get Offers</p>
+                <p className="text-slate-600 dark:text-primary">Clear order history</p>
               </div>
             </div>
           </div>
         </aside>
       </section>
-      {/*Subscribe Section*/}
+      {/* Collection call to action */}
       <section className="container px-5 lg:mx-auto py-0 dark:bg-slate-400 relative">
               <div data-aos='zoom-in'>
               <ResponsiveImage image={scentedCandles} alt="" sizes="100vw" className="absolute left-0 top-0 w-full h-full object-cover" />
               <div className="container backdrop-blur-sm py-10">
                 <div className="space-y-6 max-w-xl mx-auto px-4 md:px-0">
-                <h1 
-                className="text-2xl text-center text-slate-900 font-semibold dark:text-primary">Get Notified About New Products</h1>
-                <input data-aos='fade-up'
-                type="text"
-                disabled
-                aria-label='Newsletter signup unavailable, coming soon'
-                placeholder="Enter your email"
-                className="w-full text-center p-3 rounded-md disabled:cursor-not-allowed disabled:opacity-70 "/>
-                <p className='text-center text-slate-900 dark:text-primary'>Newsletter signup coming soon.</p>
+                <h2 className="text-2xl text-center text-slate-900 font-semibold dark:text-primary">Find something for your space</h2>
+                <p className='text-center text-slate-900 dark:text-primary'>Explore the complete OfferingsbyMK collection by category.</p>
+                <div className='flex justify-center'>
+                  <Link to='/shop' className='rounded-md bg-primary px-6 py-3 font-semibold text-white hover:bg-yellow-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-800 focus-visible:ring-offset-2'>Browse the collection</Link>
+                </div>
                 </div>
               </div>
               </div>
@@ -196,21 +201,21 @@ export default function Home() {
             Testimonials
           </h3>
           <p className="text-2xl mt-2 font-medium text-slate-600 dark:text-primary">
-          Discover what our satisfied customers are saying about OfferingsbyMK!, our products have made a lasting impression.
+          Discover what customers say about OfferingsbyMK and the products they enjoy.
           </p>
         </div>
             {/*Testimonial Cards*/}
             <div>
             <Swiper
             {...swiperParams}
+            autoplay={{ ...testimonialCarousel.autoplay, pauseOnMouseEnter: true }}
+            onSwiper={testimonialCarousel.onSwiper}
             data-aos="zoom-out"
             data-aos-once="true"
             data-aos-duration="600"
-            modules={[Autoplay]}
-            autoplay={{pauseOnMouseEnter: true, delay: 3000}}
             speed={600}
             direction="horizontal"
-            loop={"true"}
+            loop={true}
             spaceBetween={20}
             slidesPerView={2}
             breakpoints={{
@@ -240,12 +245,13 @@ export default function Home() {
                     <p
                     className="text-xs text-gray-500 dark:text-primary"
                     >{item.text}</p>
-                    <h1 className="text-xl font-bold text-slate-600 dark:text-primary">{item.name}</h1>
+                    <h3 className="text-xl font-bold text-slate-600 dark:text-primary">{item.name}</h3>
                   </div>
                 </div>
               </SwiperSlide>
             ))}
           </Swiper>
+          <CarouselAutoplayControl label="testimonials carousel" paused={testimonialCarousel.paused} onToggle={testimonialCarousel.togglePaused} />
             </div>
           </div>
       </section>

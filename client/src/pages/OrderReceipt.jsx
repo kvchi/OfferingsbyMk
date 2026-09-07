@@ -58,7 +58,7 @@ export default function OrderReceipt() {
             <header className='border-b border-slate-400 pb-6'>
               <div className='flex flex-wrap items-start justify-between gap-5'>
                 <div>
-                  <p className='text-sm font-semibold uppercase tracking-[0.2em]'>ShopSphare</p>
+                  <p className='text-sm font-semibold tracking-[0.2em]'>OfferingsbyMK</p>
                   <h1 ref={headingRef} tabIndex='-1' className='mt-2 text-3xl font-bold focus-visible:outline-none'>Paid receipt</h1>
                   <p className='mt-2 break-words font-semibold'>{state.receipt.orderNumber}</p>
                 </div>
@@ -77,7 +77,7 @@ export default function OrderReceipt() {
               <OrderItems lines={state.receipt.lines} headingId='receipt-items-heading' print />
               <OrderTotals order={state.receipt} />
             </div>
-            <footer className='mt-8 border-t border-slate-400 pt-4 text-sm'>Thank you for shopping with ShopSphare.</footer>
+            <footer className='mt-8 border-t border-slate-400 pt-4 text-sm'>Thank you for shopping with OfferingsbyMK.</footer>
             <div className='receipt-print-hidden mt-8 flex flex-wrap gap-3'>
               <button type='button' onClick={() => window.print()} className='rounded-md bg-primary px-5 py-3 font-semibold text-white'>Print receipt</button>
               <Link to={`/orders/${encodeURIComponent(state.receipt.id)}`} className='rounded-md border border-slate-500 px-5 py-3'>Return to order</Link>

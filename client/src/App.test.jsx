@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter } from 'react-router-dom';
 import App, { appRoutes, PageLoading } from './App';
 import store from './store';
@@ -12,6 +12,13 @@ vi.mock('swiper/react', () => ({
   Swiper: ({ children }) => <div data-testid='swiper'>{children}</div>,
   SwiperSlide: ({ children }) => <div>{children}</div>,
 }));
+
+beforeAll(async () => {
+  await Promise.all([
+    import('./pages/Login'),
+    import('./pages/Shop'),
+  ]);
+});
 
 const renderAt = (path) => {
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
@@ -83,7 +90,7 @@ describe('application route and layout smoke tests', () => {
   });
 });
 
-describe('footer and placeholder navigation integrity', () => {
+describe('footer and customer-facing navigation integrity', () => {
   it('renders existing social destinations as safe external anchors', () => {
     renderAt('/about');
     const footer = screen.getByRole('contentinfo');
@@ -101,27 +108,24 @@ describe('footer and placeholder navigation integrity', () => {
     }
   });
 
-  it('uses valid internal destinations and leaves unfinished footer items noninteractive', () => {
+  it('uses valid internal destinations and omits unfinished legal/support entries', () => {
     renderAt('/about');
     const footer = screen.getByRole('contentinfo');
 
     expect(within(footer).getByRole('link', { name: 'Candles' })).toHaveAttribute('href', '/shop#candles');
     expect(within(footer).getByRole('link', { name: 'Shop' })).toHaveAttribute('href', '/shop');
-
-    for (const label of ['Terms of use', 'Privacy', 'Customer Service']) {
-      const item = within(footer).getByText(new RegExp(`${label}.*Coming soon`, 'i'));
-      expect(item.closest('a')).toBeNull();
-      expect(item.closest('button')).toBeNull();
-    }
+    expect(within(footer).getByRole('link', { name: 'About' })).toHaveAttribute('href', '/about');
+    expect(within(footer).getByRole('link', { name: 'My Orders' })).toHaveAttribute('href', '/orders');
+    expect(within(footer).queryByText(/terms of use|privacy|customer service/i)).not.toBeInTheDocument();
   });
 
-  it('clearly disables unfinished actions and links category cards to existing sections', () => {
+  it('provides working storefront actions without unfinished checkout or newsletter copy', () => {
     const home = renderAt('/');
-    for (const control of screen.getAllByRole('button', { name: /place order.*coming soon/i })) {
-      expect(control).toBeDisabled();
-    }
+    expect(screen.getByRole('link', { name: 'Shop products' })).toHaveAttribute('href', '/shop');
+    for (const link of screen.getAllByRole('link', { name: 'View in shop' })) expect(link).toHaveAttribute('href', '/shop');
     expect(screen.getByRole('link', { name: /view all products/i })).toHaveAttribute('href', '/shop');
-    expect(screen.getByLabelText(/newsletter signup unavailable/i)).toBeDisabled();
+    expect(screen.getByRole('link', { name: /browse the collection/i })).toHaveAttribute('href', '/shop');
+    expect(screen.queryByText(/coming soon|newsletter/i)).not.toBeInTheDocument();
 
     home.unmount();
     renderAt('/shop');

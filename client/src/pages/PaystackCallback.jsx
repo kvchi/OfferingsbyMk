@@ -56,7 +56,7 @@ export default function PaystackCallback() {
         {state.status === 'VERIFYING' && (
           <div role='status' aria-live='polite'>
             <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>Verifying your Paystack payment</h1>
-            <p className='mt-3'>Please wait while ShopSphare confirms the transaction securely with Paystack. Do not close this page.</p>
+            <p className='mt-3'>Please wait while OfferingsbyMK confirms the test transaction securely with Paystack. Do not close this page.</p>
           </div>
         )}
         {state.status === 'SUCCESS' && (

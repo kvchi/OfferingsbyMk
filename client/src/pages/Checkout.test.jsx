@@ -159,7 +159,7 @@ describe('checkout delivery and preview', () => {
     expect(screen.getByText('Server Soy Wax')).toBeInTheDocument();
     expect(screen.getByText('Server Rosemary')).toBeInTheDocument();
     expect(screen.getByText('Free')).toBeInTheDocument();
-    expect(screen.getByText(/calculated by the shopsphare server/i)).toBeInTheDocument();
+    expect(screen.getByText(/calculated by the store server/i)).toBeInTheDocument();
     expect(screen.getByText(/NGN/)).toBeInTheDocument();
     expect(checkoutApi.createOrder).not.toHaveBeenCalled();
   });

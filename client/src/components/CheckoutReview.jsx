@@ -65,7 +65,7 @@ export default function CheckoutReview({
             <div className='flex justify-between gap-4'><dt>Shipping</dt><dd>Free</dd></div>
             <div className='flex justify-between gap-4 border-t border-slate-300 pt-3 text-lg font-bold dark:border-slate-600'><dt>Total</dt><dd>{formatNaira(checkout.totalKobo)} <span className='text-sm'>NGN</span></dd></div>
           </dl>
-          <p className='mt-4 text-sm text-slate-600 dark:text-slate-300'>This total was calculated by the ShopSphare server using current product prices.</p>
+          <p className='mt-4 text-sm text-slate-600 dark:text-slate-300'>This total was calculated by the store server using current product prices.</p>
         </section>
       </div>
 

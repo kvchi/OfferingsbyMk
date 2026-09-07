@@ -51,4 +51,11 @@ describe('product catalog integrity', () => {
     expect(productCatalog.map(commerceFields).sort(byId))
       .toEqual(commerceProducts.map(commerceFields).sort(byId));
   });
+
+  it('uses corrected customer-visible product titles without changing canonical IDs', () => {
+    const titles = new Map(productCatalog.map(({ id, title }) => [id, title]));
+    expect(titles.get('featured-lavender')).toBe('Lavender');
+    expect(titles.get('decor-ceramic-chandeliers')).toBe('Ceramic Chandeliers');
+    expect(titles.get('wellness-aromatic-diffusers')).toBe('Aromatic Diffusers');
+  });
 });

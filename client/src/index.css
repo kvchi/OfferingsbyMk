@@ -16,6 +16,14 @@
     transition: transform 0.3s ease-out;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .menu-enter,
+    .menu-enter-active {
+      transform: none;
+      transition: none;
+    }
+  }
+
   @media print {
     @page {
       margin: 14mm;

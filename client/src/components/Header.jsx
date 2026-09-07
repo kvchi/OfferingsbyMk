@@ -67,7 +67,7 @@ export default function Header() {
     toast.success('Logged out successfully');
   }
 
-  const linkClass = 'text-primary hover:text-slate-800 hover:translate-y-2 font-semibold';
+  const linkClass = 'rounded-sm text-primary hover:text-slate-800 hover:translate-y-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2';
 
   const renderAuthLink = (link, className = linkClass) => {
     if (link.title !== 'Login') {
@@ -123,7 +123,7 @@ export default function Header() {
                     key={subItem.id}
                     to={subItem.url}
                     onClick={() => setShowDropdown(false)}
-                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-primary dark:hover:bg-gray-600'>
+                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset dark:text-primary dark:hover:bg-gray-600'>
                       {subItem.title}
                     </Link>
                   ))}
@@ -131,17 +131,17 @@ export default function Header() {
             )}
             </div>
             ) : (
-              <Link to={link.url}>{link.title}</Link>
+              <Link to={link.url} className='rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'>{link.title}</Link>
             )}
           </div>
           ))}
         </div>
         
-      <Link to={"/"} className="flex gap-2 items-center justify-center md:ml-auto">
-          <MdPanoramaPhotosphere  className="text-primary text-3xl md:text-2xl" />
-          <h1 className="text-primary font-bold text-xl md:text-2xl font-serif md:mr-0 hidden md:flex">
-           OFFERINGSBYMK
-          </h1>
+      <Link to={"/"} aria-label='OfferingsbyMK home' className="flex gap-2 items-center justify-center rounded-sm md:ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+          <MdPanoramaPhotosphere aria-hidden='true' className="text-primary text-3xl md:text-2xl" />
+          <span className="text-primary font-bold text-xl md:text-2xl font-serif md:mr-0 hidden md:flex">
+           OfferingsbyMK
+          </span>
         </Link>
 
         <div data-header-controls className='ml-auto flex shrink-0 items-center gap-2'>
@@ -170,7 +170,7 @@ export default function Header() {
           <nav id='mobile-navigation-menu' aria-hidden={!showMenu} className={`md:hidden flex flex-col absolute left-0 top-full z-[70] bg-secondary dark:bg-gray-800 w-full py-2 px-4 transition-all duration-300 ease-out ${showMenu ? 'visible menu-enter-active' : 'invisible pointer-events-none menu-enter'}`}>
             {isAuthenticated && (
               <div className='relative rounded-md p-2 hover:bg-white dark:hover:bg-gray-900'>
-                <Link to='/orders' onClick={closeMenu} className='text-primary text-xl font-normal'>My Orders</Link>
+                <Link to='/orders' onClick={closeMenu} className='block min-h-11 rounded-sm py-2 text-primary text-xl font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'>My Orders</Link>
               </div>
             )}
           
@@ -181,7 +181,7 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="text-primary font-normal text-xl"
+                    className="min-h-11 rounded-sm py-2 text-primary font-normal text-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     Logout
                   </button>
@@ -189,7 +189,7 @@ export default function Header() {
                   <Link
                     to={link.url}
                     onClick={closeMenu}
-                    className="text-primary font-normal text-xl"
+                    className="block min-h-11 rounded-sm py-2 text-primary font-normal text-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     Login
                   </Link>
@@ -201,7 +201,7 @@ export default function Header() {
                   onClick={toggleCategoryDropdown}
                   aria-expanded={showDropdown}
                   aria-controls='category-menu-mobile'
-                  className='text-primary font-normal text-xl rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
+                  className='min-h-11 py-2 text-primary font-normal text-xl rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
                 >
                   {link.title}
                 </button>
@@ -209,7 +209,7 @@ export default function Header() {
                 <Link
                   to={link.url}
                   onClick={closeMenu}
-                  className='text-primary font-normal text-xl'
+                  className='block min-h-11 rounded-sm py-2 text-primary font-normal text-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
                 >
                   {link.title}
                 </Link>
@@ -225,7 +225,7 @@ export default function Header() {
                       setShowDropdown(false);
                       closeMenu();
                     }}
-                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-primary dark:hover:bg-gray-900'
+                    className='block min-h-11 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset dark:text-primary dark:hover:bg-gray-900'
                   >
                     {subItem.title}
                   </Link>

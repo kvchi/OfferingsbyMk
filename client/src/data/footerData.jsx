@@ -31,15 +31,13 @@ export const footerData = [
     },
     {
         id: "12391",
-        title: "Terms of use",
+        title: "About",
+        url: "/about",
     },
     {
         id: "12392",
-        title: "Privacy",
-    },
-    {
-        id: "12393",
-        title: "Customer Service",
+        title: "My Orders",
+        url: "/orders",
     },
     {
         id: "12394",

@@ -34,6 +34,14 @@ beforeEach(() => {
 });
 
 describe('application route and layout smoke tests', () => {
+  it('themes the complete page shell without removing horizontal overflow protection', () => {
+    renderAt('/');
+    const pageShell = document.querySelector('[data-page-shell]');
+
+    expect(pageShell).toHaveClass('min-h-screen', 'bg-white', 'dark:bg-slate-800');
+    expect(pageShell).not.toHaveClass('w-screen', 'min-w-screen', 'overflow-x-auto', 'overflow-x-scroll');
+  });
+
   it.each([
     ['/', /Browse Our Collection/i],
     ['/about', /About us/i],

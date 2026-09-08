@@ -115,7 +115,7 @@ export const appRouter = createBrowserRouter(appRoutes);
 export default function App({ router = appRouter }) {
   return (
     <AuthInitializer>
-      <div>
+      <div data-page-shell className="min-h-screen bg-white dark:bg-slate-800">
         <Toaster />
         <RouterProvider router={router} />
       </div>

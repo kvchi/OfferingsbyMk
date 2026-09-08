@@ -92,6 +92,23 @@ describe('accessible persistent header', () => {
     expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument();
   });
 
+  it('keeps the cart count and behavior while providing light and dark theme styling', () => {
+    const store = renderHeader({ quantity: 3 });
+    const cart = screen.getByRole('button', { name: 'Open shopping cart, 3 items' });
+    const badge = within(cart).getByText('3');
+
+    expect(cart).toHaveClass('h-11', 'w-11', 'bg-yellow-200', 'dark:bg-slate-700');
+    expect(cart).toHaveClass('border-primary', 'dark:border-slate-400', 'dark:hover:bg-slate-600');
+    expect(cart).toHaveClass('focus-visible:ring-primary', 'dark:focus-visible:ring-yellow-200');
+    expect(cart.querySelector('svg')).toHaveClass('text-primary', 'dark:text-yellow-200');
+    expect(badge).toHaveTextContent('3');
+    expect(badge).toHaveClass('bg-red-600', 'text-white', 'dark:border-gray-900');
+
+    fireEvent.click(cart);
+    expect(store.getState().cart.statusTab).toBe(true);
+    expect(cart).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('orders mobile menu and desktop authentication controls after cart', () => {
     renderHeader();
     const cart = screen.getByRole('button', { name: 'Open shopping cart, 3 items' });
@@ -148,6 +165,15 @@ describe('accessible persistent header', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
     expect(screen.getByRole('button', { name: 'Switch to light mode' })).toHaveAttribute('aria-pressed', 'true');
     expect(localStorage.getItem('theme')).toBe('dark');
+    expect(document.documentElement).toHaveClass('dark');
+  });
+
+  it('restores the stored dark theme before offering the light-mode action', () => {
+    localStorage.setItem('theme', 'dark');
+    renderHeader();
+
+    expect(document.documentElement).toHaveClass('dark');
+    expect(screen.getByRole('button', { name: 'Switch to light mode' })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('preserves logout cleanup and navigation', () => {

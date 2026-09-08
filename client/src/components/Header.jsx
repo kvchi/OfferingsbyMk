@@ -146,9 +146,9 @@ export default function Header() {
 
         <div data-header-controls className='ml-auto flex shrink-0 items-center gap-2'>
         <DarkMode />
-        <button type='button' aria-label={`Open shopping cart, ${totalQuantity} ${totalQuantity === 1 ? 'item' : 'items'}`} aria-expanded={isCartOpen} aria-controls='shopping-cart-drawer' className='p-2 bg-yellow-200 rounded-full flex justify-center items-center relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2' onClick={handleOpenCartTab}>
-        <BsCart4 aria-hidden='true' className='text-primary text-2xl' />
-        <span aria-hidden='true' className='absolute top-8 bg-red-500 text-white w-5 h-5 rounded-full flex justify-center items-center'>{totalQuantity}</span>
+        <button type='button' aria-label={`Open shopping cart, ${totalQuantity} ${totalQuantity === 1 ? 'item' : 'items'}`} aria-expanded={isCartOpen} aria-controls='shopping-cart-drawer' className='relative flex h-11 w-11 items-center justify-center rounded-full border border-primary bg-yellow-200 p-2 transition-colors hover:bg-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:border-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 dark:focus-visible:ring-yellow-200 dark:focus-visible:ring-offset-gray-900' onClick={handleOpenCartTab}>
+        <BsCart4 aria-hidden='true' className='text-2xl text-primary dark:text-yellow-200' />
+        <span aria-hidden='true' className='absolute top-8 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-secondary bg-red-600 px-1 text-xs font-bold text-white dark:border-gray-900'>{totalQuantity}</span>
         </button>
         <div className='hidden items-center gap-2 md:flex'>
           {isAuthenticated && <Link to='/orders' className={linkClass}>My Orders</Link>}

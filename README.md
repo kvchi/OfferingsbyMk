@@ -4,19 +4,26 @@ ShopSphare is a full-stack portfolio e-commerce application built with React, Ex
 
 **Naming:** ShopSphare is the software project and repository. **OfferingsbyMK** is the demonstration storefront customers see inside the application.
 
+## Live Demo
+
+- Frontend: [OfferingsbyMK](https://offeringsby-mk.vercel.app)
+- Backend health: [ShopSphare API health](https://shopsphare-api.onrender.com/health)
+
+This is a portfolio demonstration, not a real-money production store. Paystack operates exclusively in **test mode**; do not attempt real payments. Render Free services may sleep after inactivity, so the first request can require a cold-start wait.
+
+Visitors may register their own temporary test account to explore the customer journey. Do not submit sensitive personal information; use fictional, non-identifying test details only.
+
 ## Screenshots
 
-Genuine screenshots have not yet been added because browser capture was unavailable during the presentation phase. No mock or AI-generated application images are used.
+Genuine screenshots are still required because safe browser capture was unavailable during documentation closure. No mock or AI-generated application images are used.
 
-Before publishing the portfolio, capture development/test-data views of:
+Manual capture checklist:
 
 - Home and Shop on desktop;
-- mobile navigation and the empty/non-empty cart;
-- checkout review without personal delivery information;
-- My Orders, a paid order, and a receipt with identifying values masked;
-- Login and password recovery.
+- mobile navigation and a cart containing catalog data only;
+- Login or Forgot Password without entering an email address.
 
-Store approved captures in `docs/screenshots/` and add them here with descriptive alternative text. Check desktop, tablet, and mobile layouts; light and dark modes; keyboard focus; reduced-motion carousel behavior; image loading; and the Console/Network panels before publishing.
+Do not use authenticated customer pages or the existing receipt capture. Exclude email addresses, reset links, tokens, delivery details, complete order numbers, payment references, and provider dashboards. Store approved captures in `docs/screenshots/` and add them here with descriptive alternative text.
 
 ## Features
 
@@ -55,6 +62,7 @@ Store approved captures in `docs/screenshots/` and add them here with descriptiv
 | Authentication | bcrypt password hashing, signed JWTs with auth-version invalidation |
 | Payments | Paystack hosted checkout in test mode |
 | Email | Brevo HTTPS API, Nodemailer SMTP, or a local preview mode |
+| Public deployment | Vercel frontend, Render Free API, Turso/libSQL data, Brevo HTTPS email, Paystack test mode |
 | Testing | Vitest, Testing Library, Node test runner, Supertest |
 | Images | Sharp-generated responsive fallbacks and WebP candidates |
 
@@ -83,7 +91,7 @@ sequenceDiagram
     actor Customer
     participant UI as React frontend
     participant API as Express API
-    participant DB as Prisma / SQLite
+    participant DB as Prisma / SQLite or Turso
     participant PS as Paystack test mode
 
     Customer->>UI: Review cart and delivery details
@@ -235,7 +243,7 @@ The generator uses layout-derived widths, avoids upscaling, preserves originals,
 - Autoplay disabled when reduced motion is initially requested and never automatically resumed after a reduced-motion change
 - Meaningful product alternative text, decorative empty alternatives, intrinsic image dimensions, semantic headings, and protected focus flows
 
-Code-level behavior is covered by component tests. Manual keyboard, screen-reader, contrast, and reduced-motion checks are still required in real browsers before publication.
+Code-level behavior is covered by component tests. Deeper manual keyboard, screen-reader, contrast, and reduced-motion checks remain recommended in real browsers.
 
 ## Performance
 
@@ -249,36 +257,36 @@ These are static build/file measurements, not live Core Web Vitals. No LCP, CLS,
 
 ## Safe demo guidance
 
-There are no published demo credentials. Register a new development account, use non-personal test delivery data, and use Paystack's official test mode only. Do not place real customer information, payment references, password-reset URLs, or environment values in screenshots or issue reports.
+There are no published demo credentials. Visitors may register their own temporary test account, use fictional non-identifying delivery data, and use Paystack's official test mode only. Do not submit sensitive personal information or place real customer information, payment references, password-reset URLs, or environment values in screenshots or issue reports.
 
 ## Known portfolio limitations
 
-- The frontend is public, but the customer journey remains incomplete until the separately documented Render, Turso, Brevo, and Vercel configuration is performed.
-- Turso/libSQL is suitable for this portfolio API, but the free tiers and single Render instance are not a production-scale or SLA-backed architecture.
-- Payments are test mode only; refunds, reconciliation jobs, analytics, and live payments are out of scope.
-- There is no admin dashboard, inventory/fulfilment management, search, browser E2E suite, or CI pipeline yet.
-- Transactional email requires local preview mode, explicitly configured SMTP, or the documented Brevo HTTPS mode with a verified sender.
+- Render Free cold starts can delay the first request after inactivity, and all deployed services remain subject to free-tier quotas and availability limits.
+- SQLite and Turso/libSQL are appropriate for portfolio-scale concurrency; the single Render instance and current persistence design are not presented as production-scale or SLA-backed architecture.
+- Payments are test mode only. Live payments, refunds, reconciliation jobs, and analytics are out of scope.
+- There is no admin dashboard, inventory or fulfilment management, browser E2E suite, or CI pipeline.
+- The public deployment uses Brevo's HTTPS transactional-email API; local development also supports private preview or explicitly configured SMTP modes.
 - Some preserved original and public assets are intentionally unused pending an explicit cleanup decision.
-- Genuine portfolio screenshots and real assistive-technology/browser verification remain to be completed.
+- Privacy-safe portfolio screenshots and real assistive-technology verification remain to be completed.
 
 ## Production-hardening roadmap
 
-Before treating the project as a real store: deploy behind HTTPS; assess managed PostgreSQL or another production-scale datastore with tested backups; configure restricted secrets, CORS, transactional email, and public webhooks; add browser E2E/CI coverage; define inventory and fulfilment concurrency rules; add monitoring, reconciliation, privacy/legal policies, operational admin authorization, and tested refund/support processes.
+Before treating the project as a real store: move to production-grade, SLA-backed hosting while retaining HTTPS; assess managed PostgreSQL or another production-scale datastore with tested backups; harden secrets, CORS, transactional email, and public webhooks; add browser E2E/CI coverage; define inventory and fulfilment concurrency rules; add monitoring, reconciliation, privacy/legal policies, operational admin authorization, and tested refund/support processes.
 
 ## Deployment and license
 
-The frontend is published at `https://offeringsby-mk.vercel.app`. A public backend has not yet been provisioned. The repository does not currently declare a license; no reuse rights should be assumed until the owner selects one.
+The OfferingsbyMK frontend is deployed on Vercel at `https://offeringsby-mk.vercel.app`, and the ShopSphare API is deployed on Render Free at `https://shopsphare-api.onrender.com`. The public API uses Turso/libSQL persistence, Brevo HTTPS transactional email, and Paystack test mode. The repository does not currently declare a license; no reuse rights should be assumed until the owner selects one.
 
-### Free public-backend foundation
+### Deployed free-tier architecture
 
-The prepared portfolio deployment uses a Vercel frontend, one Render Free Express service, Turso/libSQL persistence, Brevo's HTTPS transactional-email API, and Paystack test mode. Render's local filesystem is not used for production data.
+The deployed portfolio architecture uses a Vercel frontend, one Render Free Express service, Turso/libSQL persistence, Brevo's HTTPS transactional-email API, and Paystack test mode. Render's local filesystem is not used for public data.
 
 #### Vercel configuration
 
-Set this public build-time value in the Vercel **Production** environment, then rebuild the frontend:
+The deployed Vercel frontend uses this public build-time API URL:
 
 ```text
-VITE_API_URL=https://<actual-render-service>.onrender.com
+VITE_API_URL=https://shopsphare-api.onrender.com
 ```
 
 Do not append `/api`; every existing frontend request already begins with `/api/...`. Changing backend CORS does not change an already-built frontend bundle and cannot make `localhost:4000` public. Never place database tokens, JWT secrets, Brevo keys, SMTP credentials, or Paystack secrets in a `VITE_*` variable.
@@ -307,10 +315,10 @@ The root `render.yaml` supplies non-secret architecture defaults and leaves secr
 | `PAYSTACK_CALLBACK_URL` | public configuration | `https://offeringsby-mk.vercel.app/payments/paystack/callback` |
 | `PAYSTACK_TIMEOUT_MS` | public configuration | bounded provider timeout |
 
-The future Paystack test webhook URL is:
+The Paystack test webhook URL is:
 
 ```text
-https://<actual-render-service>.onrender.com/api/payments/paystack/webhook
+https://shopsphare-api.onrender.com/api/payments/paystack/webhook
 ```
 
 Both callback and reset links return to the Vercel frontend. Reset links are derived from `APP_BASE_URL`; raw tokens and complete reset URLs must never be logged in production.

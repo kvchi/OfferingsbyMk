@@ -44,60 +44,51 @@ export default function Home() {
 
   return (
     <main>
-      <section className="container mx-auto relative overflow-hidden bg-gray-100 dark:bg-gray-800 max-w-screen">
-        <div className="absolute h-[600px] w-[600px] bg-primary rotate-45 rounded-3xl -top-full right-0 -z-9"></div>
-        <aside className=" flex md:flex-row-reverse flex-col mb-4 mt-2 md:mt-0 items-center justify-center p-8">
-          <div className="mt-20 w-[400px] max-w-full">
+      <section aria-labelledby="home-hero-heading" className="container relative mx-auto max-w-screen overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-40 h-[420px] w-[420px] rotate-45 rounded-3xl bg-primary/70 sm:-right-20 sm:-top-48 sm:h-[520px] sm:w-[520px] dark:bg-primary/40"></div>
+        <aside
+          className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pt-8 md:gap-10 md:px-8 lg:grid-cols-2 lg:gap-12 lg:py-10"
+        >
+          <div className="mx-auto w-full max-w-xl text-center lg:mx-0 lg:text-left">
+            <h1 id="home-hero-heading" className="mb-4 text-4xl font-bold text-slate-600 underline dark:text-primary">
+              Browse Our Collection
+            </h1>
+            <p className="mx-auto max-w-lg text-xl text-slate-600 dark:text-primary lg:mx-0">
+              Explore our wide range of products designed to enhance your
+              well-being. From aromatic candles to calming herbs, find the
+              perfect items to suit your needs.
+            </p>
+            <div className="mt-6 flex items-center justify-center gap-2 lg:justify-start">
+              <Link to='/shop' className="min-h-11 rounded-full bg-gradient-to-r from-primary to-secondary p-3 text-2xl font-bold text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary dark:text-primary">
+                Shop products
+              </Link>
+              <BsArrowUpRightCircle aria-hidden='true' className="text-5xl text-slate-600 dark:text-primary" />
+            </div>
+          </div>
+          <div className="mx-auto w-full max-w-[34rem] overflow-hidden rounded-2xl">
           <Swiper key={23}
             {...swiperParams}
             autoplay={heroCarousel.autoplay}
             onSwiper={heroCarousel.onSwiper}
-            data-aos="zoom-out"
-            data-aos-once="true"
-            data-aos-duration="600"
             aria-label="OfferingsbyMK featured products"
-            className="h-[400px] w-full object-cover rounded-2xl"
+            className="h-[320px] w-full rounded-2xl sm:h-[400px] md:h-[430px] lg:h-[440px] xl:h-[460px]"
           >
             {headerBackground.map((item, index) => (
               <SwiperSlide key={item.id} className="relative">
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 overflow-hidden [&>picture]:block [&>picture]:h-full [&>picture]:w-full">
                   <ResponsiveImage
                     image={item.image}
                     alt={item.alt}
-                    sizes="(max-width: 767px) calc(100vw - 4rem), 400px"
+                    sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) min(544px, calc(100vw - 4rem)), (max-width: 1279px) calc(50vw - 3.5rem), 544px"
                     loading={index === 0 ? 'eager' : 'lazy'}
                     fetchPriority={index === 0 ? 'high' : 'low'}
+                    className="h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 opacity-50"></div>
                 </div>
               </SwiperSlide>
             ))}
           </Swiper>
-          </div>
-          <div
-            data-aos="zoom-in"
-            data-aos-once="true"
-            data-aos-duration="700"
-            className="mx-auto text-center"
-          >
-            <h1 className="text-4xl font-bold mb-4 mt-8 md:mt-0 text-slate-600 dark:text-primary underline">
-              Browse Our Collection
-            </h1>
-            <p className="text-xl text-slate-600 dark:text-primary max-w-md">
-              Explore our wide range of products designed to enhance your
-              well-being. From aromatic candles to calming herbs, find the
-              perfect items to suit your needs.
-            </p>
-            <div
-            data-aos='fade-up'
-            data-aos-once='true'
-            data-aos-duration='800'
-            className="flex justify-center items-center gap-1 ">
-              <Link to='/shop' className="font-bold text-2xl text-slate-600 dark:text-primary bg-gradient-to-r from-primary to-secondary dark:bg-gradient-to-r dark:from-slate-900 dark:to-secondary p-3 rounded-full mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                Shop products
-              </Link>
-              <BsArrowUpRightCircle aria-hidden='true' className="text-5xl mt-6 text-slate-600 dark:text-primary" />
-            </div>
           </div>
         </aside>
       </section>

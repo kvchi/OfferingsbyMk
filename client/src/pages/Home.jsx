@@ -47,7 +47,7 @@ export default function Home() {
       <section aria-labelledby="home-hero-heading" className="container relative mx-auto max-w-screen overflow-hidden bg-gray-100 dark:bg-gray-800">
         <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-40 h-[420px] w-[420px] rotate-45 rounded-3xl bg-primary/70 sm:-right-20 sm:-top-48 sm:h-[520px] sm:w-[520px] dark:bg-primary/40"></div>
         <aside
-          className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pt-8 md:gap-10 md:px-8 lg:grid-cols-2 lg:gap-12 lg:py-10"
+          className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 pb-10 pt-6 sm:px-6 sm:pt-8 md:gap-10 md:px-8 lg:grid-cols-2 lg:gap-12 lg:py-10"
         >
           <div className="mx-auto w-full max-w-xl text-center lg:mx-0 lg:text-left">
             <h1 id="home-hero-heading" className="mb-4 text-4xl font-bold text-slate-600 underline dark:text-primary">

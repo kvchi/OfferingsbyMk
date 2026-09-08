@@ -52,7 +52,7 @@ describe('deliberate page image loading', () => {
     const heroCarousel = screen.getByLabelText('OfferingsbyMK featured products');
     const initial = screen.getByRole('img', { name: 'A customer relaxing with wellness products' });
 
-    expect(hero).toHaveClass('mx-auto', 'grid', 'max-w-6xl', 'grid-cols-1', 'lg:grid-cols-2');
+    expect(hero).toHaveClass('mx-auto', 'grid', 'grid-cols-1', 'items-center', 'gap-8', 'lg:grid-cols-2', 'lg:gap-12');
     expect(heroSection.querySelector('[data-aos]')).toBeNull();
     expect(heroCarousel).not.toHaveAttribute('data-aos');
     expect(heroCarousel.parentElement).toHaveClass('w-full', 'max-w-[34rem]', 'overflow-hidden');

@@ -1,7 +1,9 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
+import express from 'express';
 import request from 'supertest';
 import { hashResetToken } from '../auth/passwordReset.js';
+import { createAuthRouter } from '../routes/auth.js';
 
 if (process.env.NODE_ENV !== 'test' || process.env.DATABASE_URL !== 'file:./test.db') {
   throw new Error('Password reset tests require the isolated test database runner');
@@ -64,6 +66,31 @@ test('forgot-password is non-enumerating and stores only a token hash', async ()
   assert.notEqual(record.tokenHash, rawToken);
   assert.equal(record.consumedAt, null);
   assert.equal(record.invalidatedAt, null);
+});
+
+test('delivery failure keeps the public response generic and invalidates the unusable token', async () => {
+  const failureApp = express();
+  failureApp.use(express.json());
+  const pass = (req, res, next) => next();
+  failureApp.use('/api/auth', createAuthRouter({
+    secret: 'password-reset-failure-test-secret-32-characters',
+    authenticate: pass,
+    emailService: { sendPasswordReset: async () => { throw new Error('synthetic provider failure'); } },
+    appBaseUrl: 'http://localhost:5174',
+    passwordResetTtlMinutes: 30,
+    forgotPasswordIpLimiter: pass,
+    forgotPasswordEmailLimiter: pass,
+    resetPasswordLimiter: pass,
+  }));
+
+  const response = await request(failureApp).post('/api/auth/forgot-password').send({ email });
+  assert.equal(response.status, 202);
+  assert.equal(response.body.message, genericMessage);
+  const latest = await prisma.passwordResetToken.findFirst({
+    where: { user: { email } },
+    orderBy: { createdAt: 'desc' },
+  });
+  assert.ok(latest?.invalidatedAt);
 });
 
 test('a newer request invalidates the previous reset link', async () => {

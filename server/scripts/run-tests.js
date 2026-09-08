@@ -8,7 +8,10 @@ import { readFileSync } from "node:fs";
 const serverRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const prismaRoot = resolve(serverRoot, "prisma");
 const developmentDatabase = resolve(prismaRoot, "dev.db");
-const testArtifacts = ["test.db", "test.db-journal", "test.db-wal", "test.db-shm"].map((name) =>
+const testArtifacts = [
+  "test.db", "test.db-journal", "test.db-wal", "test.db-shm",
+  "adapter-test.db", "adapter-test.db-journal", "adapter-test.db-wal", "adapter-test.db-shm",
+].map((name) =>
   resolve(prismaRoot, name)
 );
 
@@ -30,9 +33,11 @@ const developmentBefore = fingerprint(developmentDatabase);
 const testEnv = {
   ...process.env,
   NODE_ENV: "test",
+  DATABASE_MODE: "local",
   DATABASE_URL: "file:./test.db",
   SECRET: "shopsphare-isolated-test-secret-32-characters",
-  CORS_ORIGINS: "http://localhost:5174",
+  CORS_ORIGINS: "https://offeringsby-mk.vercel.app,http://localhost:5174",
+  TRUST_PROXY_HOPS: "1",
   PAYSTACK_SECRET_KEY: ["sk", "test", "unit", "only", "not", "a", "credential"].join("_"),
   PAYSTACK_CALLBACK_URL: "http://localhost:5174/payments/paystack/callback",
   APP_BASE_URL: "http://localhost:5174",
@@ -55,11 +60,17 @@ const run = (args) => {
 try {
   for (const target of testArtifacts) rmSync(target, { force: true });
   if (run([prismaCli, "migrate", "deploy"])) {
-    if (run(["--test", "test/auth.smoke.test.js"])) {
-      if (run(["--test", "test/passwordReset.smoke.test.js"])) {
-        if (run(["--test", "test/commerce.smoke.test.js"])) {
-          if (run(["--test", "test/checkout.smoke.test.js"])) {
-            run(["--test", "test/payment.smoke.test.js"]);
+    if (run(["--test", "test/databaseAdapter.test.js"])) {
+      if (run(["--test", "test/deployment.test.js"])) {
+        if (run(["--test", "test/emailService.test.js"])) {
+          if (run(["--test", "test/auth.smoke.test.js"])) {
+            if (run(["--test", "test/passwordReset.smoke.test.js"])) {
+              if (run(["--test", "test/commerce.smoke.test.js"])) {
+                if (run(["--test", "test/checkout.smoke.test.js"])) {
+                  run(["--test", "test/payment.smoke.test.js"]);
+                }
+              }
+            }
           }
         }
       }

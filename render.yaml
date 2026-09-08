@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: shopsphare-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_MODE
+        value: turso
+      - key: TRUST_PROXY_HOPS
+        value: 1
+      - key: CORS_ORIGINS
+        value: https://offeringsby-mk.vercel.app
+      - key: APP_BASE_URL
+        value: https://offeringsby-mk.vercel.app
+      - key: PAYSTACK_CALLBACK_URL
+        value: https://offeringsby-mk.vercel.app/payments/paystack/callback
+      - key: EMAIL_DELIVERY_MODE
+        value: brevo
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: SECRET
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        sync: false
+      - key: BREVO_SENDER_NAME
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false

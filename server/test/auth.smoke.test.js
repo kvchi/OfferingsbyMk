@@ -49,6 +49,23 @@ test("frontend signup payload contract creates a normalized account", async () =
   assert.equal(user?.role, "CUSTOMER");
 });
 
+test('health, exact CORS allow-listing, and one-hop proxy trust are deployment-safe', async () => {
+  const health = await request(app).get('/health');
+  assert.equal(health.status, 200);
+  assert.deepEqual(health.body, { status: 'ok' });
+
+  const allowed = await request(app).get('/health').set('Origin', 'https://offeringsby-mk.vercel.app');
+  assert.equal(allowed.headers['access-control-allow-origin'], 'https://offeringsby-mk.vercel.app');
+  const local = await request(app).get('/health').set('Origin', 'http://localhost:5174');
+  assert.equal(local.headers['access-control-allow-origin'], 'http://localhost:5174');
+  const rejected = await request(app).get('/health').set('Origin', 'https://untrusted.example.invalid');
+  assert.equal(rejected.headers['access-control-allow-origin'], undefined);
+
+  const trustProxy = app.get('trust proxy fn');
+  assert.equal(trustProxy('127.0.0.1', 0), true);
+  assert.equal(trustProxy('127.0.0.1', 1), false);
+});
+
 test("signup accepts an omitted optional phone", async () => {
   const optionalPhoneEmail = "no-phone@shopsphare.invalid";
   const response = await request(app).post("/api/auth/signup").send({

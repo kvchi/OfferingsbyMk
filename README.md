@@ -51,10 +51,10 @@ Store approved captures in `docs/screenshots/` and add them here with descriptiv
 |---|---|
 | Frontend | React 18, Vite, React Router, Redux Toolkit, Tailwind CSS, Swiper |
 | API | Node.js, Express, Zod, Helmet, rate limiting |
-| Data | Prisma ORM, SQLite for local/single-instance portfolio use |
+| Data | Prisma ORM, local SQLite, and Turso/libSQL for the public portfolio API |
 | Authentication | bcrypt password hashing, signed JWTs with auth-version invalidation |
 | Payments | Paystack hosted checkout in test mode |
-| Email | Nodemailer SMTP or a local preview mode |
+| Email | Brevo HTTPS API, Nodemailer SMTP, or a local preview mode |
 | Testing | Vitest, Testing Library, Node test runner, Supertest |
 | Images | Sharp-generated responsive fallbacks and WebP candidates |
 
@@ -64,16 +64,17 @@ Store approved captures in `docs/screenshots/` and add them here with descriptiv
 flowchart TD
     Browser[React / Vite frontend] -->|HTTPS JSON API + JWT| API[Express API]
     API --> Prisma[Prisma ORM]
-    Prisma --> DB[(SQLite development database)]
+    Prisma --> DB[(Local SQLite or Turso/libSQL)]
     API -->|secret key stays server-side| Paystack[Paystack test API]
     Browser -->|hosted test checkout| Hosted[Paystack hosted checkout]
     Paystack -->|verified response / signed webhook| API
     API --> Reset[Password-reset service]
     Reset -->|development| Preview[Private console preview]
-    Reset -->|configured environments| SMTP[SMTP provider]
+    Reset -->|public deployment| Brevo[Brevo HTTPS API]
+    Reset -->|optional local mode| SMTP[SMTP provider]
 ```
 
-The frontend never accesses Prisma, SQLite, Paystack secret keys, or SMTP credentials. The shared catalog keeps canonical product IDs and commerce fields aligned between UI data and backend synchronization.
+The frontend never accesses Prisma, database credentials, Paystack secret keys, or email-provider credentials. The shared catalog keeps canonical product IDs and commerce fields aligned between UI data and backend synchronization.
 
 ### Checkout and payment sequence
 
@@ -108,7 +109,7 @@ sequenceDiagram
     API-->>UI: Paid order and receipt availability
 ```
 
-Password recovery follows a separate server-owned flow: a generic request response prevents account enumeration, only a token hash is stored, preview or SMTP delivery occurs server-side, successful consumption invalidates older sessions, and the customer must log in with the new password.
+Password recovery follows a separate server-owned flow: a generic request response prevents account enumeration, only a token hash is stored, preview, SMTP, or Brevo HTTPS delivery occurs server-side, successful consumption invalidates older sessions, and the customer must log in with the new password.
 
 ## Repository structure
 
@@ -133,7 +134,7 @@ ShopSphare/
 
 - A current Node.js LTS release and npm
 - A Paystack **test** account only when exercising hosted payment checkout
-- Optional SMTP credentials only when testing real email delivery locally
+- Optional SMTP credentials only when testing SMTP delivery locally; Brevo configuration is used for the public HTTPS delivery mode
 
 ### Install
 
@@ -147,7 +148,7 @@ npm install
 
 Create ignored `client/.env` and `server/.env` files from their respective `.env.example` templates. Do not commit environment files or real credentials.
 
-The client template documents `VITE_API_URL`. The server template documents `PORT`, `SECRET`, `DATABASE_URL`, `CORS_ORIGINS`, Paystack settings, application/reset settings, email delivery mode, and SMTP settings. Replace placeholders locally; never place a Paystack secret in a client-side or `VITE_*` variable.
+The client template documents `VITE_API_URL`. The server template documents local and Turso database settings, `PORT`, `SECRET`, `CORS_ORIGINS`, Paystack settings, application/reset settings, and preview, SMTP, and Brevo email modes. Replace placeholders locally; never place any backend secret in a client-side or `VITE_*` variable.
 
 ### Database and catalog
 
@@ -252,18 +253,81 @@ There are no published demo credentials. Register a new development account, use
 
 ## Known portfolio limitations
 
-- No public deployment is currently documented.
-- SQLite targets local/single-instance demonstration rather than production scale.
+- The frontend is public, but the customer journey remains incomplete until the separately documented Render, Turso, Brevo, and Vercel configuration is performed.
+- Turso/libSQL is suitable for this portfolio API, but the free tiers and single Render instance are not a production-scale or SLA-backed architecture.
 - Payments are test mode only; refunds, reconciliation jobs, analytics, and live payments are out of scope.
 - There is no admin dashboard, inventory/fulfilment management, search, browser E2E suite, or CI pipeline yet.
-- Transactional email requires local preview mode or separately configured SMTP.
+- Transactional email requires local preview mode, explicitly configured SMTP, or the documented Brevo HTTPS mode with a verified sender.
 - Some preserved original and public assets are intentionally unused pending an explicit cleanup decision.
 - Genuine portfolio screenshots and real assistive-technology/browser verification remain to be completed.
 
 ## Production-hardening roadmap
 
-Before treating the project as a real store: deploy behind HTTPS; move persistence to managed PostgreSQL with backups; configure restricted secrets, CORS, SMTP, and public webhooks; add browser E2E/CI coverage; define inventory and fulfilment concurrency rules; add monitoring, reconciliation, privacy/legal policies, operational admin authorization, and tested refund/support processes.
+Before treating the project as a real store: deploy behind HTTPS; assess managed PostgreSQL or another production-scale datastore with tested backups; configure restricted secrets, CORS, transactional email, and public webhooks; add browser E2E/CI coverage; define inventory and fulfilment concurrency rules; add monitoring, reconciliation, privacy/legal policies, operational admin authorization, and tested refund/support processes.
 
 ## Deployment and license
 
-No production deployment URL is currently provided. The repository does not currently declare a license; no reuse rights should be assumed until the owner selects one.
+The frontend is published at `https://offeringsby-mk.vercel.app`. A public backend has not yet been provisioned. The repository does not currently declare a license; no reuse rights should be assumed until the owner selects one.
+
+### Free public-backend foundation
+
+The prepared portfolio deployment uses a Vercel frontend, one Render Free Express service, Turso/libSQL persistence, Brevo's HTTPS transactional-email API, and Paystack test mode. Render's local filesystem is not used for production data.
+
+#### Vercel configuration
+
+Set this public build-time value in the Vercel **Production** environment, then rebuild the frontend:
+
+```text
+VITE_API_URL=https://<actual-render-service>.onrender.com
+```
+
+Do not append `/api`; every existing frontend request already begins with `/api/...`. Changing backend CORS does not change an already-built frontend bundle and cannot make `localhost:4000` public. Never place database tokens, JWT secrets, Brevo keys, SMTP credentials, or Paystack secrets in a `VITE_*` variable.
+
+#### Render configuration
+
+The root `render.yaml` supplies non-secret architecture defaults and leaves secrets for manual entry. Render supplies `PORT`; the server binds it on `0.0.0.0`. Configure these Render values:
+
+| Variable | Classification | Required setting |
+|---|---|---|
+| `NODE_ENV` | public configuration | `production` |
+| `DATABASE_MODE` | public configuration | `turso` |
+| `TURSO_DATABASE_URL` | sensitive configuration | provisioned `libsql://...` URL |
+| `TURSO_AUTH_TOKEN` | secret | Turso authentication token |
+| `SECRET` | secret | independently generated high-entropy application secret |
+| `TRUST_PROXY_HOPS` | public configuration | `1` for the single Render proxy hop |
+| `CORS_ORIGINS` | public configuration | `https://offeringsby-mk.vercel.app` |
+| `APP_BASE_URL` | public configuration | `https://offeringsby-mk.vercel.app` |
+| `EMAIL_DELIVERY_MODE` | public configuration | `brevo` |
+| `BREVO_API_KEY` | secret | Brevo API key |
+| `BREVO_SENDER_EMAIL` | sensitive configuration | registered and verified Brevo sender |
+| `BREVO_SENDER_NAME` | public configuration | approved storefront sender name |
+| `BREVO_TIMEOUT_MS` | public configuration | bounded HTTPS timeout, such as `8000` |
+| `PASSWORD_RESET_TTL_MINUTES` | public configuration | value from 15 through 60 |
+| `PAYSTACK_SECRET_KEY` | secret | test secret only; live keys are rejected |
+| `PAYSTACK_CALLBACK_URL` | public configuration | `https://offeringsby-mk.vercel.app/payments/paystack/callback` |
+| `PAYSTACK_TIMEOUT_MS` | public configuration | bounded provider timeout |
+
+The future Paystack test webhook URL is:
+
+```text
+https://<actual-render-service>.onrender.com/api/payments/paystack/webhook
+```
+
+Both callback and reset links return to the Vercel frontend. Reset links are derived from `APP_BASE_URL`; raw tokens and complete reset URLs must never be logged in production.
+
+#### Database initialization and migration lifecycle
+
+Local development remains SQLite with `DATABASE_MODE=local` and `DATABASE_URL=file:./dev.db`. Isolated tests continue to use `file:./test.db`. Production refuses local mode and requires the Turso URL and token together.
+
+Prisma Migrate does not directly run against remote Turso. Use the following distinct workflows:
+
+1. **One-time fresh Turso initialization:** from a trusted operator environment, set the production Turso variables and run `npm run db:init:turso`. The script reads checked-in migration folders in timestamp order, applies each migration in a transaction, and records its name and SHA-256 checksum in `_ShopSphareMigration`.
+2. **Initial catalog synchronization:** only after successful schema initialization, deliberately run `npm run db:sync-products` with the same Turso configuration. This idempotently creates or updates the canonical catalog; it does not create users or orders.
+3. **Ordinary Render startup:** Render runs `npm start` only. Waking or restarting the free service does not apply migrations or synchronize data.
+4. **Later schema changes:** create and test a SQLite migration locally with `prisma migrate dev`, review and commit its SQL, then run `npm run db:init:turso` once from the trusted operator environment. Already-recorded migrations are skipped; a changed checksum fails closed.
+
+Do not use `prisma db push` as a production substitute. Do not upload `server/prisma/dev.db`, and do not copy local accounts, password-reset records, addresses, orders, or payment records into Turso.
+
+#### Render Free limitations
+
+Render Free services sleep after inactivity, so the first request after sleep can be slow. Their local filesystem is ephemeral, common SMTP ports are blocked, and there is no production SLA. Turso provides persistence independently of Render restarts, and Brevo is called over HTTPS instead of SMTP. This remains a portfolio demonstration using Paystack test transactions, not a production store.

@@ -19,6 +19,7 @@ dotenv.config();
 
 const env = loadEnv();
 export const app = express();
+app.set('trust proxy', env.TRUST_PROXY_HOPS);
 
 app.use(
   cors({
@@ -38,6 +39,9 @@ app.use(cookieParser(env.SECRET));
 
 app.get("/", (req, res) => {
   res.json({ message: "ShopSphare API is running" });
+});
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
 const authLimiter = rateLimit({
@@ -97,7 +101,7 @@ app.use((error, req, res, next) => {
 });
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  app.listen(env.PORT, () => {
+  app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`Server listening on http://localhost:${env.PORT}`);
   });
 }

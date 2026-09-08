@@ -3,16 +3,24 @@
   "version": "1.0.0",
   "type": "module",
   "main": "app.js",
+  "engines": {
+    "node": ">=20 <23"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "build": "npm run db:generate",
+    "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:init:turso": "node scripts/apply-turso-migrations.js",
     "db:sync-products": "node scripts/sync-products.js",
     "db:studio": "prisma studio",
-    "validate": "prisma validate && node --check app.js && node --check routes/auth.js && node --check routes/checkout.js && node --check routes/orders.js && node --check routes/paystackWebhook.js && node --check payments/paystack.js && node --check middleware/authenticate.js && node --check config/env.js && node --check auth/emailRateLimiter.js && node --check auth/passwordReset.js && node --check email/emailService.js && node --check commerce/constants.js && node --check commerce/errors.js && node --check commerce/checkoutValidation.js && node --check commerce/checkout.js && node --check commerce/validation.js && node --check commerce/catalog.js && node --check commerce/orders.js && node --check commerce/payments.js && node --check scripts/sync-products.js && node --check scripts/run-tests.js && node --check test/auth.smoke.test.js && node --check test/passwordReset.smoke.test.js && node --check test/commerce.smoke.test.js && node --check test/checkout.smoke.test.js && node --check test/payment.smoke.test.js && node --check ../shared/commerceCatalog.mjs",
+    "validate": "prisma validate && node --check app.js && node --check routes/auth.js && node --check routes/checkout.js && node --check routes/orders.js && node --check routes/paystackWebhook.js && node --check payments/paystack.js && node --check middleware/authenticate.js && node --check config/database.js && node --check config/prisma.js && node --check config/env.js && node --check auth/emailRateLimiter.js && node --check auth/passwordReset.js && node --check email/emailService.js && node --check commerce/constants.js && node --check commerce/errors.js && node --check commerce/checkoutValidation.js && node --check commerce/checkout.js && node --check commerce/validation.js && node --check commerce/catalog.js && node --check commerce/orders.js && node --check commerce/payments.js && node --check scripts/tursoMigrations.js && node --check scripts/apply-turso-migrations.js && node --check scripts/sync-products.js && node --check scripts/run-tests.js && node --check test/databaseAdapter.test.js && node --check test/deployment.test.js && node --check test/emailService.test.js && node --check test/auth.smoke.test.js && node --check test/passwordReset.smoke.test.js && node --check test/commerce.smoke.test.js && node --check test/checkout.smoke.test.js && node --check test/payment.smoke.test.js && node --check ../shared/commerceCatalog.mjs",
     "test": "node scripts/run-tests.js"
   },
   "dependencies": {
+    "@libsql/client": "0.8.1",
+    "@prisma/adapter-libsql": "5.22.0",
     "@prisma/client": "^5.18.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
@@ -29,5 +37,8 @@
     "nodemon": "^3.1.4",
     "prisma": "^5.18.0",
     "supertest": "^7.2.2"
+  },
+  "overrides": {
+    "qs": "6.16.0"
   }
 }

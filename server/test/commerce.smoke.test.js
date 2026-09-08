@@ -104,6 +104,46 @@ test('product synchronization creates the approved five categories and 29 exact 
   );
 });
 
+test('catalog synchronization uses a bounded timeout and remains atomic', async () => {
+  let transactionOptions;
+  const catalogDb = {
+    $transaction(callback, options) {
+      transactionOptions = options;
+      return prisma.$transaction(callback, options);
+    },
+  };
+  const categories = [
+    { id: 'catalog-atomic-category', name: 'Atomic', slug: 'catalog-atomic', active: true },
+  ];
+  const products = [
+    {
+      id: 'catalog-atomic-product-a', categoryId: categories[0].id, title: 'Atomic A',
+      description: null, priceKobo: 100, currency: 'NGN', active: true, available: true,
+    },
+    {
+      id: 'catalog-atomic-product-b', categoryId: categories[0].id, title: 'Atomic B',
+      description: null, priceKobo: 200, currency: 'NGN', active: true, available: true,
+    },
+  ];
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TRIGGER catalog_atomic_failure
+    BEFORE INSERT ON Product
+    WHEN NEW.id = 'catalog-atomic-product-b'
+    BEGIN
+      SELECT RAISE(ABORT, 'intentional catalog rollback');
+    END
+  `);
+  try {
+    await assert.rejects(synchronizeProducts({ db: catalogDb, categories, products }));
+    assert.deepEqual(transactionOptions, { timeout: 30_000 });
+    assert.equal(await prisma.category.count({ where: { id: categories[0].id } }), 0);
+    assert.equal(await prisma.product.count({ where: { id: { in: products.map(({ id }) => id) } } }), 0);
+  } finally {
+    await prisma.$executeRawUnsafe('DROP TRIGGER IF EXISTS catalog_atomic_failure');
+  }
+});
+
 test('synchronization is idempotent and deterministic for intentional commerce changes', async () => {
   const repeated = await synchronizeProducts({ db: prisma });
   assert.equal(repeated.createdProducts, 0);

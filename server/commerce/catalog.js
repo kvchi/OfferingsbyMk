@@ -7,6 +7,8 @@ import { prisma } from '../config/prisma.js';
 import { SUPPORTED_CURRENCIES, SUPPORTED_CURRENCY } from './constants.js';
 import { assertProductPriceKobo } from './validation.js';
 
+const CATALOG_TRANSACTION_OPTIONS = Object.freeze({ timeout: 30_000 });
+
 const assertNonEmptyString = (value, fieldName) => {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new TypeError(`${fieldName} must be a non-empty string`);
@@ -106,7 +108,7 @@ export async function synchronizeProducts({
       createdProducts: products.filter(({ id }) => !existingProductIds.has(id)).length,
       updatedProducts: products.filter(({ id }) => existingProductIds.has(id)).length,
     };
-  });
+  }, CATALOG_TRANSACTION_OPTIONS);
 }
 
 export async function deactivateProduct({ db = prisma, productId }) {
